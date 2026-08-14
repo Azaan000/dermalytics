@@ -1,0 +1,107 @@
+# ==========================================
+#  DERMALYTICS - Comprehensive .gitignore
+# ==========================================
+
+# --- Python & Backend ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+dermalytics.db
+backend/dermalytics.db
+
+# Uploaded User Telemetry & Images (Privacy & Storage)
+uploads/assessments/*
+uploads/thumbnails/*
+uploads/gradcam/*
+uploads/profiles/*
+backend/uploads/assessments/*
+backend/uploads/thumbnails/*
+backend/uploads/gradcam/*
+backend/uploads/profiles/*
+!backend/uploads/**/.gitkeep
+
+# --- Node.js & Frontend ---
+node_modules/
+frontend/node_modules/
+jspm_packages/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Frontend Build Outputs
+dist/
+dist-ssr/
+frontend/dist/
+*.tsbuildinfo
+.eslintcache
+
+# --- Environment & Secret Credentials ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.cert
+
+# --- Operating System & Editor ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDE files (preserving project recommendations)
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
