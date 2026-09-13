@@ -6,9 +6,11 @@ import { Dashboard } from './components/dashboard/Dashboard';
 import { UploadForm } from './components/analysis/UploadForm';
 import { ResultsDisplay } from './components/analysis/ResultsDisplay';
 import { HistoryList } from './components/history/HistoryList';
+import { ProgressTracker } from './components/progress/ProgressTracker';
 import { ProfileForm } from './components/profile/ProfileForm';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AuthModal } from './components/auth/AuthModal';
+import { AiChatWidget } from './components/chat/AiChatWidget';
 import { Assessment } from './types/assessment';
 import { SAMPLE_CASES } from './utils/sampleData';
 import { useAuth } from './context/AuthContext';
@@ -116,7 +118,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans relative">
       
       {/* Navigation Header */}
       <Header
@@ -181,6 +183,13 @@ export function App() {
               />
             )}
 
+            {currentTab === 'progress' && (
+              <ProgressTracker
+                history={history}
+                onSelectAssessment={handleSelectAssessment}
+              />
+            )}
+
             {currentTab === 'profile' && (
               <ProfileForm />
             )}
@@ -195,6 +204,9 @@ export function App() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Floating AI Knowledge Chat Widget */}
+      <AiChatWidget />
 
       {/* Authentication Modal */}
       <AuthModal

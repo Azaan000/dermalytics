@@ -1,0 +1,106 @@
+# DERMALYTICS CLINICAL KNOWLEDGE BASE
+AI-Driven Skin & Hair/Scalp Health Reference Manual
+
+================================================================================
+SECTION 1: DERMATOLOGICAL SKIN LESION CLASSIFICATION (HAM10000 BENCHMARK)
+================================================================================
+
+1. MELANOMA (mel) - High Risk / Malignant
+- Definition: A serious and potentially fatal form of skin cancer arising from melanocytes (pigment-producing cells).
+- Dermoscopic Signs: Asymmetry in color and shape, atypical pigment network, irregular dots and globules, blue-white veil, peripheral black dots, regression structures.
+- Clinical Urgency: Urgent dermatologist referral and excisional biopsy required.
+- Prognosis: Highly treatable if detected early (in situ or Breslow thickness <0.8mm); advanced stages have high metastatic potential.
+
+2. MELANOCYTIC NEVUS (nv) - Benign (Common Mole)
+- Definition: Benign proliferations of melanocytes presenting as flat macules or raised papules.
+- Dermoscopic Signs: Symmetric architecture, uniform pigment network (reticular, globular, or homogenous), regular border.
+- Clinical Guidance: Normal baseline finding. Self-monitor using the ABCDE criteria for changes in size, color, or shape.
+
+3. BASAL CELL CARCINOMA (bcc) - Malignant / High Risk
+- Definition: The most common form of skin cancer arising from the basal layer of the epidermis. Rarely metastasizes but can cause extensive local tissue destruction if untreated.
+- Dermoscopic Signs: Arborizing (tree-like) telangiectasias, shiny white-red structureless areas, ulceration, blue-gray ovoid nests and globules, maple leaf-like areas.
+- Treatment: Surgical excision, Mohs surgery, cryotherapy, or topical therapies depending on subtype and location.
+
+4. ACTINIC KERATOSIS / INTRAEPITHELIAL CARCINOMA (akiec) - Pre-Malignant / Medium Risk
+- Definition: A rough, scaly, erythematous patch occurring on sun-damaged skin (Bowen's disease represents squamous cell carcinoma in situ).
+- Dermoscopic Signs: Strawberry pattern (erythema with follicular openings surrounded by white halos), yellow/white surface scale, rosette signs under polarized light.
+- Risk: Potential progression to invasive Squamous Cell Carcinoma (SCC) if left untreated.
+- Treatment: Cryotherapy, topical fluorouracil (5-FU), imiquimod, or photodynamic therapy.
+
+5. BENIGN KERATOSIS / SEBORRHEIC KERATOSIS (bkl) - Benign
+- Definition: Extremely common benign epidermal tumors that typically appear with aging.
+- Dermoscopic Signs: Multiple milia-like cysts, comedo-like openings (crypts), cerebriform (brain-like) ridges and fissures, moth-eaten borders, hairpin vessels with white halos.
+- Clinical Guidance: Harmless; treatment only needed for cosmetic reasons or if mechanically irritated.
+
+6. DERMATOFIBROMA (df) - Benign
+- Definition: A common, benign cutaneous fibrohistiocytic tumor typically occurring on extremities.
+- Dermoscopic Signs: Central white scar-like patch surrounded by a delicate, faint pigment network; positive "pinch" or "dimple" sign upon lateral compression.
+- Clinical Guidance: Completely benign, reassurance provided.
+
+7. VASCULAR LESIONS (vasc) - Benign (Angioma, Pyogenic Granuloma)
+- Definition: Benign vascular proliferations including cherry angiomas, hemangiomas, and angiokeratomas.
+- Dermoscopic Signs: Well-demarcated red, purple, or blue-black round lacunae/clods without a pigment network.
+- Clinical Guidance: Benign; evaluate if bleeding or ulceration occurs.
+
+--------------------------------------------------------------------------------
+THE ABCDE RULE FOR SKIN LESIONS
+--------------------------------------------------------------------------------
+- A = Asymmetry: One half of the spot does not match the other half.
+- B = Border: Irregular, scalloped, notched, or poorly defined edges.
+- C = Color: Variation of colors (shades of tan, brown, black, white, red, or blue).
+- D = Diameter: Lesion size greater than 6mm (approx. size of a pencil eraser), though melanomas can be smaller.
+- E = Evolution: Any change in size, shape, color, elevation, or new symptom (itching, bleeding, crusting).
+
+================================================================================
+SECTION 2: TRICHOLOGY & SCALP HEALTH ASSESSMENT
+================================================================================
+
+1. HAIR LOSS CLASSIFICATION SCALES
+A. Norwood-Hamilton Scale (Male Pattern Hair Loss / Androgenetic Alopecia - AGA):
+- Stage I: Minimal or no recession of the hairline along the anterior border. Normal juvenile hairline.
+- Stage II: Triangular, symmetrical frontotemporal recession extending no further than a line 2cm anterior to the coronal line.
+- Stage III: Deep symmetrical frontotemporal recession (bare or sparsely covered). Minimum level considered clinical baldness.
+- Stage III Vertex: Thinning primarily on the vertex (crown) with limited frontotemporal recession.
+- Stage IV: Severe frontotemporal recession and prominent vertex thinning separated by a moderately dense band of hair.
+- Stage V: Vertex loss area increases; separating band becomes sparse and narrower.
+- Stage VI: Separating band of hair disappears; frontal and vertex regions merge into a large bald zone.
+- Stage VII: Severe horseshoe pattern remaining only on lateral sides and posterior occipital scalp.
+
+B. Ludwig Scale (Female Pattern Hair Loss - FPHL):
+- Stage I: Mild thinning over the crown and central part line without alteration of the anterior hairline.
+- Stage II: Moderate diffuse rarefaction of hair across the central scalp; noticeable widening of the part.
+- Stage III: Extensive diffuse thinning resulting in a transparent or bare appearance over the central vertex.
+
+2. QUANTITATIVE TRICHOSCOPY PARAMETERS
+- Hair Density Score (0-100 index): Normal healthy scalp ranges between 80-100 (approx. 180-250 hairs/cm²).
+- Follicular Units: Healthy scalp displays multi-hair follicular units (2-4 hairs per follicle). Miniaturization shifts this to predominantly single-hair units.
+- Hair Shaft Diameter: Normal terminal hair: 0.06 - 0.08 mm. Miniaturized vellus hair: < 0.03 mm. Anisotrichosis (hair diameter diversity >20%) is a hallmark of AGA.
+- Scalp Visibility: Proportion of bare inter-follicular scalp exposed under standardized illumination.
+- Sebum & Inflammation:
+  * Normal: Clean perifollicular apertures, pale peach/white scalp tone.
+  * Oily / Seborrheic: Perifollicular oily casts, yellowish scaling.
+  * Erythema / Micro-inflammation: Redness around follicular ostia (peripilar sign), indicative of scalp irritation or active telogen effluvium.
+
+3. COMMON SCALP CONDITIONS
+- Alopecia Areata: Autoimmune condition causing circular patches of smooth hair loss. Dermoscopy shows yellow dots, black dots, and "exclamation mark" hairs.
+- Telogen Effluvium: Diffuse sudden shedding triggered by stress, illness, nutritional deficiency, or hormonal changes.
+- Seborrheic Dermatitis & Dandruff: Scalp inflammation with Malassezia overgrowth, itching, and yellowish/white flakes.
+
+================================================================================
+SECTION 3: EXPLAINABLE AI (Grad-CAM) & CLINICAL TRIAGE IN DERMALYTICS
+================================================================================
+
+1. What is Grad-CAM?
+- Gradient-weighted Class Activation Mapping (Grad-CAM) uses the gradients of the target classification score flowing into the final convolutional layer of the neural network (e.g. EfficientNetB3 / MobileNetV3) to produce a coarse 2D localization map highlighting the regions of the image that contributed most strongly to the prediction.
+- Color Interpretation:
+  * Red / Dark Orange (Warm tones): High neural activation; these features (e.g. pigment clods, irregular borders, follicle clusters) directly triggered the classification.
+  * Yellow / Green: Intermediate contextual weighting.
+  * Blue / Violet (Cool tones): Low or neutral activation (background skin/hair with minimal diagnostic relevance).
+
+2. Clinical Safety Triage Logic:
+- Confidence Threshold: Any prediction with confidence < 80% is flagged for mandatory physician consultation.
+- High-Risk Flagging: Predictions of Melanoma, Basal Cell Carcinoma, or Actinic Keratosis automatically trigger high-priority clinical consultation banners.
+- Mandatory Disclaimer: Dermalytics is an assistive, preliminary screening and educational monitoring tool. It does not replace clinical histopathological examination or dermatological diagnosis.
+
+3. Local Context Contingency (Pakistan & South Asia):
+- Accounts for Fitzpatrick Skin Types III-V, elevated UV exposure, humid climates in coastal areas (such as Karachi), and regional hair care practices (oil application, pollution-induced scalp stress).

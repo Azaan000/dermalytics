@@ -1,5 +1,5 @@
 import os
-from typing import List, Union
+from typing import List, Union, Optional
 from pydantic_settings import BaseSettings
 from pydantic import AnyHttpUrl, field_validator
 
@@ -23,6 +23,12 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10 MB
     ALLOWED_IMAGE_TYPES: List[str] = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
+
+    # OpenRouter AI Chat Assistant
+    OPENROUTER_API_KEY: Optional[str] = None
+    OPENROUTER_MODEL: str = "google/gemini-2.5-flash-lite-preview-06-17:free"
+    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+    KNOWLEDGE_BASE_PATH: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "knowledge.txt")
 
     # CORS
     CORS_ORIGINS: List[str] = [
