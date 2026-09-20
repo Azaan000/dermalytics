@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -19,8 +19,26 @@ import {
   Stethoscope,
   Layers,
   Eye,
+  Flame,
+  Trophy,
+  Star,
+  Video,
+  Play,
+  Download,
+  Lock,
+  Zap,
+  Target,
 } from 'lucide-react';
 import { Assessment } from '../../types/assessment';
+import {
+  calculateStreak,
+  calculateConsistency,
+  computeBadges,
+  getMilestoneMessage,
+  Badge,
+} from '../../utils/gamification';
+import { generateTimelapse, downloadBlob } from '../../utils/timelapseGenerator';
+
 
 // ─────────────────────────────────────────────
 // Helpers
@@ -272,11 +290,15 @@ interface ProgressTrackerProps {
   onSelectAssessment?: (a: Assessment) => void;
 }
 
-type TabType = 'overview' | 'skin' | 'hair' | 'compare';
+type TabType = 'overview' | 'skin' | 'hair' | 'compare' | 'streaks';
 
 export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ history, onSelectAssessment }) => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [timelapseType, setTimelapseType] = useState<'all' | 'skin' | 'hair'>('all');
+  const [timelapseLoading, setTimelapseLoading] = useState(false);
+  const [timelapseProgress, setTimelapseProgress] = useState<{ stage: string; percent: number } | null>(null);
+  const [timelapseError, setTimelapseError] = useState<string | null>(null);
 
   // ── Derived data ──────────────────────────────────
   const sorted = useMemo(
@@ -332,11 +354,39 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ history, onSel
     );
   };
 
+  // ── Gamification ─────────────────────────────
+  const streak = useMemo(() => calculateStreak(history), [history]);
+  const consistency = useMemo(() => calculateConsistency(history), [history]);
+  const badges = useMemo(() => computeBadges(history, streak, consistency), [history, streak, consistency]);
+  const milestone = useMemo(() => getMilestoneMessage(streak, consistency, history.length), [streak, consistency, history]);
+
+  // ── Timelapse handler ─────────────────────────
+  const handleGenerateTimelapse = useCallback(async () => {
+    setTimelapseLoading(true);
+    setTimelapseError(null);
+    setTimelapseProgress({ stage: 'Starting…', percent: 0 });
+    try {
+      const blob = await generateTimelapse(
+        history,
+        { type: timelapseType, durationSec: 5, fps: 24 },
+        (p) => setTimelapseProgress(p)
+      );
+      const name = `dermalytics-journey-${timelapseType}-${new Date().toISOString().slice(0, 10)}.webm`;
+      downloadBlob(blob, name);
+    } catch (e: any) {
+      setTimelapseError(e?.message ?? 'Timelapse generation failed.');
+    } finally {
+      setTimelapseLoading(false);
+      setTimeout(() => setTimelapseProgress(null), 2000);
+    }
+  }, [history, timelapseType]);
+
   const TABS: { id: TabType; label: string; icon: React.ReactNode }[] = [
-    { id: 'overview', label: 'Overview', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'skin', label: `Skin Trend (${skinItems.length})`, icon: <Stethoscope className="w-4 h-4" /> },
-    { id: 'hair', label: `Hair Trend (${hairItems.length})`, icon: <Sparkles className="w-4 h-4" /> },
-    { id: 'compare', label: 'Compare Scans', icon: <GitCompare className="w-4 h-4" /> },
+    { id: 'overview', label: 'Overview',                         icon: <BarChart3 className="w-4 h-4" /> },
+    { id: 'skin',     label: `Skin Trend (${skinItems.length})`, icon: <Stethoscope className="w-4 h-4" /> },
+    { id: 'hair',     label: `Hair Trend (${hairItems.length})`, icon: <Sparkles className="w-4 h-4" /> },
+    { id: 'compare',  label: 'Compare Scans',                    icon: <GitCompare className="w-4 h-4" /> },
+    { id: 'streaks',  label: 'Streaks & Badges',                 icon: <Flame className="w-4 h-4 text-orange-500" /> },
   ];
 
   const SKIN_COLORS: Record<string, string> = {
@@ -978,6 +1028,252 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ history, onSel
               })}
             </div>
           </div>
+        </div>
+      )}
+      {/* ── STREAKS & BADGES TAB ── */}
+      {activeTab === 'streaks' && (
+        <div className="space-y-5">
+
+          {/* Milestone Banner */}
+          {milestone && (
+            <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 border border-orange-200 rounded-2xl p-4 flex items-start space-x-3">
+              <span className="text-2xl leading-none mt-0.5">🎉</span>
+              <div>
+                <p className="text-sm font-extrabold text-orange-900">Milestone Reached!</p>
+                <p className="text-xs text-orange-800 mt-0.5 leading-relaxed">{milestone}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Streak & Consistency Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {/* Current Streak */}
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-2xl p-4 flex flex-col items-center text-center space-y-1 col-span-1">
+              <Flame className="w-7 h-7 text-orange-500" />
+              <p className="text-3xl font-black text-orange-700">{streak.currentStreak}</p>
+              <p className="text-[11px] text-orange-600 font-bold uppercase tracking-wide">Day Streak</p>
+              {streak.currentStreak >= 7 && (
+                <span className="text-[10px] text-orange-700 bg-orange-100 px-2 py-0.5 rounded-full font-bold">🔥 On fire!</span>
+              )}
+            </div>
+
+            {/* Longest Streak */}
+            <div className="bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-200 rounded-2xl p-4 flex flex-col items-center text-center space-y-1">
+              <Trophy className="w-7 h-7 text-rose-500" />
+              <p className="text-3xl font-black text-rose-700">{streak.longestStreak}</p>
+              <p className="text-[11px] text-rose-600 font-bold uppercase tracking-wide">Best Streak</p>
+            </div>
+
+            {/* Consistency Score */}
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-4 flex flex-col items-center text-center space-y-1">
+              <Target className="w-7 h-7 text-emerald-500" />
+              <p className="text-3xl font-black text-emerald-700">{consistency}%</p>
+              <p className="text-[11px] text-emerald-600 font-bold uppercase tracking-wide">Consistency</p>
+            </div>
+
+            {/* Days Since Last Scan */}
+            <div className={`rounded-2xl p-4 flex flex-col items-center text-center space-y-1 border ${
+              streak.daysSinceLastScan === 0
+                ? 'bg-sky-50 border-sky-200'
+                : streak.daysSinceLastScan <= 7
+                ? 'bg-slate-50 border-slate-200'
+                : 'bg-rose-50 border-rose-200'
+            }`}>
+              <Calendar className={`w-7 h-7 ${streak.daysSinceLastScan === 0 ? 'text-sky-500' : streak.daysSinceLastScan <= 7 ? 'text-slate-500' : 'text-rose-500'}`} />
+              <p className={`text-3xl font-black ${streak.daysSinceLastScan === 0 ? 'text-sky-700' : streak.daysSinceLastScan <= 7 ? 'text-slate-700' : 'text-rose-700'}`}>
+                {streak.daysSinceLastScan}
+              </p>
+              <p className={`text-[11px] font-bold uppercase tracking-wide ${streak.daysSinceLastScan === 0 ? 'text-sky-600' : streak.daysSinceLastScan <= 7 ? 'text-slate-500' : 'text-rose-600'}`}>
+                {streak.daysSinceLastScan === 0 ? 'Scanned Today!' : 'Days Since Scan'}
+              </p>
+            </div>
+          </div>
+
+          {/* Consistency Progress Bar */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Zap className="w-4 h-4 text-amber-500" />
+                <h3 className="text-sm font-bold text-slate-900">Weekly Consistency Score</h3>
+              </div>
+              <span className="text-sm font-extrabold text-emerald-700">{consistency}%</span>
+            </div>
+            <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${
+                  consistency >= 90 ? 'bg-emerald-500' : consistency >= 60 ? 'bg-amber-500' : 'bg-rose-400'
+                }`}
+                style={{ width: `${consistency}%` }}
+              />
+            </div>
+            <p className="text-[11px] text-slate-500">
+              {consistency >= 90
+                ? '🏆 Excellent — you scan almost every week. Keep it up!'
+                : consistency >= 60
+                ? '📊 Good consistency. Try to scan every 7 days to reach 90%+'
+                : '💡 Scan weekly to build a strong health baseline and improve this score.'}
+            </p>
+          </div>
+
+          {/* Next Scan Reminder */}
+          {streak.lastScanDate && (
+            <div className="bg-sky-50 border border-sky-200 rounded-2xl p-4 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-9 h-9 rounded-xl bg-sky-100 flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-sky-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-sky-900">Recommended Next Scan</p>
+                  <p className="text-sm font-extrabold text-sky-700">
+                    {new Date(streak.nextScanDue).toLocaleDateString('en-PK', { weekday: 'long', day: '2-digit', month: 'short' })}
+                  </p>
+                </div>
+              </div>
+              <span className={`text-[11px] font-bold px-2.5 py-1 rounded-xl border ${
+                new Date(streak.nextScanDue) <= new Date()
+                  ? 'bg-rose-50 border-rose-200 text-rose-700'
+                  : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+              }`}>
+                {new Date(streak.nextScanDue) <= new Date() ? '⚠️ Overdue' : '✓ Upcoming'}
+              </span>
+            </div>
+          )}
+
+          {/* Badges Grid */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <div className="flex items-center space-x-2 mb-4">
+              <Star className="w-4 h-4 text-amber-500" />
+              <h3 className="text-sm font-bold text-slate-900">Achievement Badges</h3>
+              <span className="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-medium">
+                {badges.filter(b => b.unlocked).length}/{badges.length} unlocked
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {badges.map((badge) => {
+                const TIER_RING: Record<string, string> = {
+                  bronze:   'border-amber-300 bg-amber-50',
+                  silver:   'border-slate-400 bg-slate-50',
+                  gold:     'border-yellow-400 bg-yellow-50',
+                  platinum: 'border-sky-400 bg-sky-50',
+                };
+                const TIER_LABEL: Record<string, string> = {
+                  bronze: 'text-amber-700', silver: 'text-slate-600', gold: 'text-yellow-700', platinum: 'text-sky-700',
+                };
+                return (
+                  <div
+                    key={badge.id}
+                    className={`rounded-2xl border-2 p-3 flex flex-col items-center text-center space-y-1.5 transition-all ${
+                      badge.unlocked
+                        ? TIER_RING[badge.tier]
+                        : 'border-slate-200 bg-slate-50 opacity-40 grayscale'
+                    }`}
+                    title={badge.description}
+                  >
+                    <span className="text-2xl">{badge.unlocked ? badge.emoji : '🔒'}</span>
+                    <p className={`text-[11px] font-extrabold leading-tight ${badge.unlocked ? TIER_LABEL[badge.tier] : 'text-slate-400'}`}>
+                      {badge.name}
+                    </p>
+                    <p className="text-[10px] text-slate-500 leading-tight">{badge.description}</p>
+                    {badge.unlocked && (
+                      <span className={`text-[9px] uppercase font-black tracking-wide ${TIER_LABEL[badge.tier]}`}>
+                        {badge.tier}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── TIMELAPSE GENERATOR ── */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+            <div className="flex items-center space-x-2">
+              <Video className="w-4 h-4 text-indigo-600" />
+              <h3 className="text-sm font-bold text-slate-900">Journey Timelapse Video</h3>
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Compile your chronological assessments into a smooth 5-second timelapse video with
+              crossfade transitions. Downloads as a <code className="text-indigo-700 bg-indigo-50 px-1 rounded text-[11px]">.webm</code> file.
+            </p>
+
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-bold text-slate-700">Filter by:</span>
+              {(['all', 'skin', 'hair'] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTimelapseType(t)}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold border transition-all ${
+                    timelapseType === t
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'border-slate-300 text-slate-600 hover:border-indigo-400 hover:text-indigo-600'
+                  }`}
+                >
+                  {t === 'all' ? 'All Scans' : t === 'skin' ? '🔬 Skin' : '💈 Hair'}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center space-x-3 text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+              <Info className="w-4 h-4 flex-shrink-0 text-slate-400" />
+              <span>
+                {history.filter(a => timelapseType === 'all' || a.type === timelapseType).length} scan
+                {history.filter(a => timelapseType === 'all' || a.type === timelapseType).length !== 1 ? 's' : ''} selected.
+                {history.filter(a => timelapseType === 'all' || a.type === timelapseType).length < 2 && (
+                  <span className="text-rose-600 font-semibold"> Need at least 2 to generate.</span>
+                )}
+              </span>
+            </div>
+
+            {/* Progress indicator */}
+            {timelapseProgress && (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-600 font-medium">{timelapseProgress.stage}</span>
+                  <span className="text-indigo-700 font-bold">{timelapseProgress.percent}%</span>
+                </div>
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-indigo-500 rounded-full transition-all duration-300"
+                    style={{ width: `${timelapseProgress.percent}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {timelapseError && (
+              <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-xl p-3 flex items-center space-x-2">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>{timelapseError}</span>
+              </div>
+            )}
+
+            <button
+              onClick={handleGenerateTimelapse}
+              disabled={
+                timelapseLoading ||
+                history.filter(a => timelapseType === 'all' || a.type === timelapseType).length < 2
+              }
+              className={`w-full flex items-center justify-center space-x-2 py-3 rounded-2xl text-sm font-bold transition-all shadow-sm ${
+                timelapseLoading || history.filter(a => timelapseType === 'all' || a.type === timelapseType).length < 2
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20 hover:scale-[1.02]'
+              }`}
+            >
+              {timelapseLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Generating Timelapse…</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  <span>Generate 5-Second Journey Video</span>
+                  <Download className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
+
         </div>
       )}
     </div>

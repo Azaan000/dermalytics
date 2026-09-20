@@ -11,6 +11,7 @@ import { ProfileForm } from './components/profile/ProfileForm';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AuthModal } from './components/auth/AuthModal';
 import { AiChatWidget } from './components/chat/AiChatWidget';
+import { RoutineCoachWidget } from './components/coach/RoutineCoachWidget';
 import { Assessment } from './types/assessment';
 import { SAMPLE_CASES } from './utils/sampleData';
 import { useAuth } from './context/AuthContext';
@@ -205,8 +206,11 @@ export function App() {
       {/* Footer */}
       <Footer />
 
-      {/* Floating AI Knowledge Chat Widget */}
+      {/* Floating AI Knowledge Chat Widget (bottom-right) */}
       <AiChatWidget />
+
+      {/* Floating Daily Routine Coach Widget (bottom-left) */}
+      <RoutineCoachWidget />
 
       {/* Authentication Modal */}
       <AuthModal
