@@ -3,8 +3,18 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    /* Scale base font from standard 16px to 17.5px so all text across the app is noticeably bigger, comfortable, and easy to read */
+    font-size: 17.5px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
   body {
-    @apply font-sans bg-slate-50 text-slate-900;
+    @apply font-sans bg-slate-50 text-slate-900 leading-relaxed;
+  }
+  /* Ensure headings are prominent and clear */
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight font-extrabold text-slate-900;
   }
 }
 

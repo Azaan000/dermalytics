@@ -24,11 +24,11 @@ import { chatApi, ChatMessage, ChatConfigData } from '../../api/chat';
 import { useToast } from '../../context/ToastContext';
 
 const QUICK_PROMPTS = [
-  "🔬 What are the symptoms of Malignant Melanoma?",
-  "💈 Explain the Norwood Scale for male hair loss",
-  "🧠 How does the Grad-CAM heatmap overlay work?",
-  "📋 Explain the ABCDE skin self-check rule",
-  "🧪 What are the 7 HAM10000 skin diagnostic classes?"
+  "🔬 How can I spot a dangerous skin spot (Melanoma)?",
+  "💈 How does the AI measure hair loss and fullness?",
+  "🧠 What do the red and blue colors mean on my photo?",
+  "📋 What are the 5 ABCDE signs of an unusual mole?",
+  "🧪 What are the 7 types of skin spots in simple words?"
 ];
 
 export const AiChatWidget: React.FC = () => {
@@ -39,7 +39,7 @@ export const AiChatWidget: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: "Hello! I am your **Dermalytics Clinical AI Assistant**, grounded in the official dermatology and scalp trichology knowledge base.\n\nHow can I assist you with skin lesion classification, hair density assessment, or Explainable AI (Grad-CAM) interpretations today?"
+      content: "Hello! I am your **Dermalytics Health Assistant** 😊\n\nI am here to explain skin spots and hair health in **simple, friendly words** that anyone can understand — without complicated medical jargon.\n\nHow can I help you today? Feel free to ask about any mole, hair thinning, or what your scan colors mean!"
     }
   ]);
   const [inputText, setInputText] = useState<string>('');
@@ -193,25 +193,25 @@ export const AiChatWidget: React.FC = () => {
     return text.split('\n').map((line, idx) => {
       // Headers
       if (line.startsWith('### ')) {
-        return <h4 key={idx} className="font-bold text-sm text-slate-900 mt-2 mb-1">{line.replace('### ', '')}</h4>;
+        return <h4 key={idx} className="font-extrabold text-base text-slate-900 mt-2.5 mb-1.5">{line.replace('### ', '')}</h4>;
       }
       if (line.startsWith('## ')) {
-        return <h3 key={idx} className="font-black text-sm text-slate-900 mt-2 mb-1">{line.replace('## ', '')}</h3>;
+        return <h3 key={idx} className="font-black text-lg text-slate-900 mt-3 mb-1.5">{line.replace('## ', '')}</h3>;
       }
       // Bullet points
       if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
         const clean = line.trim().substring(2);
         return (
-          <li key={idx} className="ml-3 list-disc text-xs leading-relaxed my-0.5">
+          <li key={idx} className="ml-3.5 list-disc text-sm leading-relaxed my-1 text-slate-800">
             {renderInlineMarkdown(clean)}
           </li>
         );
       }
       if (line.trim() === '') {
-        return <div key={idx} className="h-1.5" />;
+        return <div key={idx} className="h-2" />;
       }
       return (
-        <p key={idx} className="text-xs leading-relaxed">
+        <p key={idx} className="text-sm leading-relaxed text-slate-800">
           {renderInlineMarkdown(line)}
         </p>
       );
@@ -225,7 +225,7 @@ export const AiChatWidget: React.FC = () => {
         return <strong key={i} className="font-bold text-slate-900">{part.slice(2, -2)}</strong>;
       }
       if (part.startsWith('`') && part.endsWith('`')) {
-        return <code key={i} className="px-1 py-0.5 bg-slate-100 text-sky-700 rounded text-[11px] font-mono">{part.slice(1, -1)}</code>;
+        return <code key={i} className="px-1.5 py-0.5 bg-slate-100 text-sky-700 rounded text-xs font-mono font-semibold">{part.slice(1, -1)}</code>;
       }
       return part;
     });

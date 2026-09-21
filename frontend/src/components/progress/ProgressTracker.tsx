@@ -421,21 +421,20 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ history, onSel
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Page header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 flex items-center space-x-2">
-            <TrendingUp className="w-6 h-6 text-sky-600" />
-            <span>Progress Tracker</span>
+          <h1 className="text-3xl font-black text-slate-900 flex items-center space-x-3">
+            <TrendingUp className="w-8 h-8 text-sky-600" />
+            <span>Track Your Progress</span>
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
-            Longitudinal trends and side-by-side comparisons across all your scans.
+          <p className="text-base text-slate-600 mt-1">
+            See how your skin and hair are doing over time, compare past photos, and keep up your healthy routine!
           </p>
         </div>
-        <div className="flex items-center space-x-2 text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-          <Calendar className="w-3.5 h-3.5" />
+        <div className="flex items-center space-x-2 text-sm text-slate-700 bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200 font-semibold">
+          <Calendar className="w-4 h-4 text-slate-500" />
           <span>
-            {history.length} total scan{history.length !== 1 ? 's' : ''} · {skinItems.length} skin ·{' '}
-            {hairItems.length} hair
+            {history.length} total check{history.length !== 1 ? 's' : ''} ({skinItems.length} skin, {hairItems.length} hair)
           </span>
         </div>
       </div>
@@ -444,59 +443,59 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ history, onSel
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           {
-            label: 'Total Scans',
+            label: 'Total Checks Done',
             value: history.length,
-            icon: <Layers className="w-5 h-5 text-sky-600" />,
+            icon: <Layers className="w-6 h-6 text-sky-600" />,
             bg: 'bg-sky-50',
             border: 'border-sky-200',
           },
           {
-            label: 'Skin Assessments',
+            label: 'Skin Checks',
             value: skinItems.length,
-            icon: <Stethoscope className="w-5 h-5 text-indigo-600" />,
+            icon: <Stethoscope className="w-6 h-6 text-indigo-600" />,
             bg: 'bg-indigo-50',
             border: 'border-indigo-200',
           },
           {
-            label: 'Hair Assessments',
+            label: 'Hair & Scalp Checks',
             value: hairItems.length,
-            icon: <Sparkles className="w-5 h-5 text-teal-600" />,
+            icon: <Sparkles className="w-6 h-6 text-teal-600" />,
             bg: 'bg-teal-50',
             border: 'border-teal-200',
           },
           {
-            label: 'High-Risk Alerts',
+            label: 'Doctor Review Alerts',
             value: highRiskCount,
-            icon: <AlertTriangle className="w-5 h-5 text-rose-600" />,
+            icon: <AlertTriangle className="w-6 h-6 text-rose-600" />,
             bg: 'bg-rose-50',
             border: 'border-rose-200',
           },
         ].map((c) => (
           <div
             key={c.label}
-            className={`${c.bg} border ${c.border} rounded-2xl p-4 flex items-center space-x-3`}
+            className={`${c.bg} border-2 ${c.border} rounded-3xl p-5 flex items-center space-x-4 shadow-sm`}
           >
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-xs flex-shrink-0">
               {c.icon}
             </div>
             <div>
-              <p className="text-2xl font-extrabold text-slate-900">{c.value}</p>
-              <p className="text-[11px] text-slate-500 font-medium leading-tight">{c.label}</p>
+              <p className="text-3xl font-black text-slate-900">{c.value}</p>
+              <p className="text-xs text-slate-600 font-bold leading-tight mt-0.5">{c.label}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 overflow-x-auto no-scrollbar">
+      <div className="flex space-x-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 overflow-x-auto no-scrollbar">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
-            className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === t.id
                 ? 'bg-white text-sky-700 shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
             }`}
           >
             {t.icon}

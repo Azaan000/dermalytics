@@ -21,20 +21,26 @@ class ChatService:
         return "Dermalytics knowledge base: Skin lesion classification (HAM10000 7 classes) & Scalp trichology assessment."
 
     def _build_system_prompt(self) -> str:
-        return f"""You are the Dermalytics Clinical AI Assistant — a specialized, knowledgeable, and empathetic expert in dermatology and trichology.
-You assist users and clinicians by answering questions about skin lesions, scalp conditions, hair density tracking, and Explainable AI (Grad-CAM).
+        return f"""You are the Dermalytics AI Health Assistant — a friendly, compassionate, and easy-to-understand skin and hair advisor.
+Your goal is to help everyday people, patients, families, and doctors understand skin spots, hair thinning, and AI checkup results.
 
-Use the following certified DERMALYTICS CLINICAL KNOWLEDGE BASE as your authoritative reference:
+CRITICAL COMMUNICATION RULE:
+- ALWAYS EXPLAIN THINGS IN SIMPLE, EASY, EVERYDAY WORDS that anyone can understand (no complicated medical jargon!).
+- If you ever use a medical term (like "Melanoma" or "Norwood Stage"), immediately explain what it means in plain English in parentheses (e.g., "Melanoma (a serious skin spot that needs a doctor checkup)").
+- Be warm, calming, and reassuring. Never cause unnecessary panic.
+- Break down explanations into short, friendly bullet points.
+
+Use the following certified DERMALYTICS CLINICAL KNOWLEDGE BASE as your reference:
 ---
 {self.knowledge_text}
 ---
 
-BEHAVIOR AND GUIDELINES:
-1. Ground your answers in the clinical knowledge base (HAM10000 7 classes, ABCDE rules, Norwood-Hamilton & Ludwig hair loss scales, trichoscopy metrics, and Grad-CAM saliency).
-2. Explain technical concepts in clear, structured, and reassuring language with helpful bullet points and markdown formatting.
-3. When users ask about concerning symptoms (asymmetry, bleeding, rapid growth, sudden patchy hair loss), highlight the triage guidelines and encourage an in-person dermatologist evaluation.
-4. When discussing Grad-CAM, explain how the red/warm regions represent highest neural saliency activation and blue regions represent background context.
-5. Always maintain a professional, compassionate tone and emphasize that Dermalytics is an assistive screening platform, not a replacement for formal biopsy or medical diagnosis.
+KEY TOPICS & HOW TO EXPLAIN THEM SIMPLY:
+1. Skin Spots: Explain the 7 types simply (Normal Mole, Serious Melanoma, Treatable Basal Cell Spot, Sun Spot, Harmless Age Spot, Harmless Bump, Blood Vessel Mark).
+2. ABCDE Rule: Explain as the 5 signs to check on any mole (Asymmetry = uneven shape, Border = jagged edges, Color = multiple shades, Diameter = bigger than a pencil eraser, Evolution = changing over time).
+3. Hair Loss: Explain the scale simply as measuring how much hair has thinned from hairline to crown, and how density score (0-100) measures how thick and full hair is.
+4. AI Heatmap (Grad-CAM): Explain that Red/Orange shows where the AI focused its attention most, and Blue is just normal background skin or hair.
+5. Always remind users warmly that Dermalytics is an assistive screening tool and seeing a doctor is always the safest, best choice for peace of mind.
 """
 
     def _sanitize_api_key(self, client_key: Optional[str]) -> Optional[str]:
@@ -140,51 +146,60 @@ BEHAVIOR AND GUIDELINES:
         q = query.lower()
         if any(w in q for w in ["melanoma", "cancer", "malignant", "mel"]):
             return (
-                "### 🔬 Malignant Melanoma (HAM10000: `mel`)\n"
-                "- **Definition:** A high-risk malignant tumor arising from melanocytes.\n"
-                "- **Dermoscopic Signs:** Asymmetry in shape/color, atypical pigment network, irregular globules, and blue-white veils.\n"
-                "- **Urgency:** **High priority** — requires prompt clinical evaluation and excisional biopsy.\n"
-                "- **ABCDE Rule:** Look for Asymmetry, Border irregularity, Color variation, Diameter >6mm, and Evolution over time.\n\n"
-                "*Tip: Configure your OpenRouter API key in settings (⚙️) for conversational AI responses.*"
+                "### 🔬 Melanoma (High-Risk Skin Spot)\n"
+                "- **What it is in simple words:** A serious type of skin spot that forms from pigment cells. It is critical to catch it early.\n"
+                "- **What to look out for (The ABCDE Rule):**\n"
+                "  * **A = Uneven Shape:** One half doesn't match the other.\n"
+                "  * **B = Ragged Border:** The edges are rough, blurry, or notched.\n"
+                "  * **C = Color Changes:** It has different shades of brown, black, red, or white.\n"
+                "  * **D = Size:** Larger than a pencil eraser (about 6mm).\n"
+                "  * **E = Changing:** Growing, changing color, bleeding, or itching.\n"
+                "- **What you should do:** If you notice any of these signs, have a skin doctor (dermatologist) take a quick look in person. Finding it early makes it very easy to cure!\n\n"
+                "*Tip: You can set up your OpenRouter API key in settings (⚙️) for live conversational answers.*"
             )
         elif any(w in q for w in ["norwood", "ludwig", "hair loss", "thinning", "alopecia", "density", "scalp"]):
             return (
-                "### 💈 Trichology & Hair Density Assessment\n"
-                "- **Norwood-Hamilton Scale (Male Pattern):** Ranges from Stage I (normal juvenile hairline) to Stage VII (severe extensive loss).\n"
-                "- **Ludwig Scale (Female Pattern):** Stage I (mild part widening), Stage II (moderate diffuse crown rarefaction), Stage III (extensive vertex thinning).\n"
-                "- **Density Scoring:** Healthy scalps typically measure between 80–100 with multi-hair follicular units (2–4 hairs/follicle).\n"
-                "- **Recommendation:** Capture scans under uniform lighting every 30 days to track treatment response.\n\n"
-                "*Tip: Add your OpenRouter API key in settings for custom interactive Q&A!*"
+                "### 💈 Hair & Scalp Health Guide\n"
+                "- **How Men's Hair Loss is Measured (Norwood Scale):**\n"
+                "  * **Stage 1:** Normal, full hairline.\n"
+                "  * **Stage 2–3:** Slight receding at the temples; Stage 3 is where thinning becomes noticeable.\n"
+                "  * **Stage 4–5:** Thinning spreading across the top (crown).\n"
+                "  * **Stage 6–7:** Most hair on top is thin, leaving hair on the sides and back.\n"
+                "- **How Women's Hair Loss is Measured (Ludwig Scale):**\n"
+                "  * Measures gradual thinning along the central part line while keeping the front hairline intact.\n"
+                "- **Hair Fullness Score (0 to 100):**\n"
+                "  * A score of **80 to 100** means great, healthy thickness with multiple hairs growing from each pore.\n"
+                "- **Easy Advice:** Take a photo under similar lighting once a month to track your hair's progress over time."
             )
         elif any(w in q for w in ["gradcam", "grad-cam", "heatmap", "explain", "xai"]):
             return (
-                "### 🧠 Explainable AI (Grad-CAM) in Dermalytics\n"
-                "- **What it is:** Gradient-weighted Class Activation Mapping computes spatial gradients from the final convolutional layer of EfficientNet / MobileNet.\n"
-                "- **Heatmap Colors:**\n"
-                "  * 🔴 **Red/Orange:** High saliency activation — key lesion margin or follicle cluster that drove the prediction.\n"
-                "  * 🟡 **Yellow/Green:** Moderate contextual influence.\n"
-                "  * 🔵 **Blue/Purple:** Background non-diagnostic tissue.\n"
-                "- **Transparency:** Eliminates the medical 'black box' by highlighting why an image was flagged."
+                "### 🧠 AI Focus Map (See Where the AI Looked)\n"
+                "- **What is this colorful map?** It shows you the exact parts of your photo that the AI paid attention to when checking your skin or scalp.\n"
+                "- **How to read the colors easily:**\n"
+                "  * 🔴 **Red & Orange (Bright Warm Colors):** This is where the AI focused most of its attention (such as the edge of a mole or a thinning hair spot).\n"
+                "  * 🟡 **Yellow & Green:** Supporting areas that helped the AI confirm details.\n"
+                "  * 🔵 **Blue & Purple:** Just normal, healthy background skin or hair that the AI knew to ignore.\n"
+                "- **Why it helps:** You don't have to guess why the AI gave an answer — you can see the exact spot it analyzed!"
             )
         elif any(w in q for w in ["class", "ham10000", "7", "types"]):
             return (
-                "### 🧪 The 7 HAM10000 Skin Lesion Diagnostic Classes\n"
-                "1. **Melanocytic Nevus (`nv`):** Common benign mole with uniform pigment network.\n"
-                "2. **Melanoma (`mel`):** Malignant high-risk skin cancer with color/shape asymmetry.\n"
-                "3. **Basal Cell Carcinoma (`bcc`):** Malignant pearly nodule with arborizing telangiectasias.\n"
-                "4. **Actinic Keratosis (`akiec`):** Pre-cancerous rough scaly patch on sun-damaged skin.\n"
-                "5. **Benign Keratosis (`bkl`):** Common waxy/scaly age-related seborrheic keratosis.\n"
-                "6. **Dermatofibroma (`df`):** Firm benign bump with central white scar.\n"
-                "7. **Vascular Lesion (`vasc`):** Benign angioma with red/purple lacunae."
+                "### 🧪 The 7 Types of Skin Spots Checked by the AI (in Simple Words)\n"
+                "1. **Common Mole (`nv`):** Normal, harmless beauty mark. Completely safe.\n"
+                "2. **Melanoma (`mel`):** Serious skin spot that needs a doctor checkup right away.\n"
+                "3. **Basal Cell Spot (`bcc`):** Very common, slow-growing skin condition. Very treatable when caught early.\n"
+                "4. **Rough Sun Spot (`akiec`):** Dry, scaly patch from years of sun exposure. Good to treat early.\n"
+                "5. **Harmless Age Spot (`bkl`):** Normal rough or waxy spot that comes naturally with age.\n"
+                "6. **Small Firm Bump (`df`):** Harmless little bump under the skin, often from a bug bite.\n"
+                "7. **Red Blood Vessel Dot (`vasc`):** Completely harmless tiny red dot made of tiny blood vessels."
             )
         else:
             return (
-                "### 👋 Dermalytics Clinical AI Assistant\n"
-                "I am grounded in the **Dermalytics Clinical Knowledge Base** covering:\n"
-                "- **Skin Lesions:** HAM10000 7 Diagnostic Classes and ABCDE screening.\n"
-                "- **Hair & Scalp Health:** Norwood/Ludwig staging, follicle density scores, sebum, and inflammation.\n"
-                "- **Explainable AI:** Grad-CAM saliency interpretations and clinical safety triage.\n\n"
-                "💬 *To enable live OpenRouter multi-turn LLM reasoning, click the ⚙️ icon in the top right of this widget and enter your OpenRouter API key (`sk-or-v1-...`)!*"
+                "### 👋 Hello from Dermalytics AI Health Assistant!\n"
+                "I am here to explain skin spots and hair health in **simple, easy words** so anyone can understand:\n"
+                "- **Skin Spots:** Explaining the 7 types of spots and how to check your moles (ABCDE signs).\n"
+                "- **Hair & Scalp:** Explaining hair loss stages, fullness scores (0–100), and simple care habits.\n"
+                "- **AI Focus Map (Grad-CAM):** Showing you exactly what the AI noticed in your photo.\n\n"
+                "💬 *Feel free to ask any question in your own words, or tap ⚙️ in the top corner to connect your OpenRouter key for conversational chat!*"
             )
 
 chat_service = ChatService()
