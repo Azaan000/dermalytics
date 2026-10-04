@@ -4,8 +4,12 @@
 
 # --- Python & Backend ---
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+*.pyo
+*.pyd
 *.so
 .Python
 build/
@@ -35,6 +39,7 @@ venv.bak/
 
 # Testing & Coverage
 .pytest_cache/
+**/.pytest_cache/
 .coverage
 .coverage.*
 htmlcov/

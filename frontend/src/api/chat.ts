@@ -20,10 +20,9 @@ export interface ChatConfigData {
 }
 
 export const chatApi = {
-  sendMessage: async (messages: ChatMessage[], apiKey?: string, model?: string) => {
+  sendMessage: async (messages: ChatMessage[], model?: string) => {
     const res = await apiClient.post<ApiResponse<ChatResponseData>>('/chat', {
       messages,
-      api_key: apiKey || undefined,
       model: model || undefined
     });
     return res.data;

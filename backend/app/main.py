@@ -30,10 +30,10 @@ app = FastAPI(
 app.add_exception_handler(AppException, global_exception_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 
-# CORS Middleware
+# CORS Middleware (Using settings.CORS_ORIGINS instead of '*' with credentials)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,33 +48,44 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.on_event("startup")
 def startup_populate_db():
+    # Do not seed demo/test accounts in production
+    if settings.ENVIRONMENT.lower() == "production":
+        logger.info("ENVIRONMENT=production: Account auto-seeding is disabled.")
+        return
+
     db = SessionLocal()
     try:
-        # Seed demo user
+        # Seed demo user (is_admin=False)
         demo_user = db.query(User).filter(User.email == "demo@dermalytics.com").first()
         if not demo_user:
             demo_user = User(
                 email="demo@dermalytics.com",
                 username="demouser",
-                password_hash=get_password_hash("DemoPass123!"),
+                password_hash=get_password_hash(settings.DEMO_USER_PASSWORD),
                 first_name="Demo",
                 last_name="Patient",
                 phone_number="+92 300 1234567",
                 gender="Female",
                 is_active=True,
-                is_admin=True,
+                is_admin=False,  # Regular patient account, not admin
                 is_verified=True
             )
             db.add(demo_user)
-            logger.info("Demo patient user seeded (demo@dermalytics.com / DemoPass123!)")
+            logger.info("Demo patient user seeded with is_admin=False (demo@dermalytics.com)")
+        else:
+            # If demo user was previously seeded as admin, downgrade to regular patient
+            if demo_user.is_admin:
+                demo_user.is_admin = False
+                db.add(demo_user)
+                logger.info("Updated existing demo user: is_admin set to False")
 
-        # Seed admin user
+        # Seed admin user (password from settings/.env)
         admin_user = db.query(User).filter(User.email == "admin@dermalytics.com").first()
         if not admin_user:
             admin_user = User(
                 email="admin@dermalytics.com",
                 username="admin",
-                password_hash=get_password_hash("AdminPass123!"),
+                password_hash=get_password_hash(settings.ADMIN_USER_PASSWORD),
                 first_name="Dr. Khurram",
                 last_name="Iqbal",
                 is_active=True,
@@ -82,7 +93,7 @@ def startup_populate_db():
                 is_verified=True
             )
             db.add(admin_user)
-            logger.info("Admin user seeded (admin@dermalytics.com / AdminPass123!)")
+            logger.info("Admin user seeded (admin@dermalytics.com)")
 
         db.commit()
     except Exception as e:

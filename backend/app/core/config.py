@@ -10,11 +10,15 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
 
-    # Security
-    SECRET_KEY: str = "dermalytics-super-secure-secret-key-2026-production-ready"
+    # Security: No default SECRET_KEY! Refuses to start without one in .env or environment
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # Seed Accounts (Read from .env; accounts are NOT seeded when ENVIRONMENT=production)
+    DEMO_USER_PASSWORD: str = "DemoPass123!"
+    ADMIN_USER_PASSWORD: str = "AdminPass123!"
 
     # Database
     DATABASE_URL: str = "sqlite:///./dermalytics.db"
@@ -24,20 +28,32 @@ class Settings(BaseSettings):
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10 MB
     ALLOWED_IMAGE_TYPES: List[str] = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
 
-    # OpenRouter AI Chat Assistant
+    # OpenRouter AI Chat Assistant (Configured on server only)
     OPENROUTER_API_KEY: Optional[str] = None
-    OPENROUTER_MODEL: str = "google/gemini-2.5-flash-lite-preview-06-17:free"
+    OPENROUTER_MODEL: str = "openrouter/free"
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
     KNOWLEDGE_BASE_PATH: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "knowledge.txt")
 
     # CORS
-    CORS_ORIGINS: List[str] = [
+    CORS_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:8000",
         "https://dermalytics.com"
     ]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    def parse_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            if v.startswith("[") and v.endswith("]"):
+                import json
+                try:
+                    return json.loads(v)
+                except Exception:
+                    pass
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
     # AI Model Engine
     MODEL_CONFIDENCE_THRESHOLD: float = 80.0
@@ -46,7 +62,10 @@ class Settings(BaseSettings):
 
     class Config:
         case_sensitive = True
-        env_file = ".env"
+        env_file = (
+            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env"),
+            ".env"
+        )
 
 settings = Settings()
 

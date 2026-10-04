@@ -33,3 +33,11 @@ def test_chat_local_fallback_hair():
     data = response.json()
     assert data["status"] == "success"
     assert "Norwood" in data["data"]["reply"]
+
+def test_chat_config_has_openrouter_free_model():
+    response = client.get("/api/v1/chat/config")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["data"]["default_model"] == "openrouter/free"
+    models = [m["id"] for m in data["data"]["popular_models"]]
+    assert "openrouter/free" in models

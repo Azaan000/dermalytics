@@ -43,8 +43,7 @@ KEY TOPICS & HOW TO EXPLAIN THEM SIMPLY:
 5. Always remind users warmly that Dermalytics is an assistive screening tool and seeing a doctor is always the safest, best choice for peace of mind.
 """
 
-    def _sanitize_api_key(self, client_key: Optional[str]) -> Optional[str]:
-        raw_key = client_key if (client_key and client_key.strip()) else settings.OPENROUTER_API_KEY
+    def _sanitize_api_key(self, raw_key: Optional[str]) -> Optional[str]:
         if not raw_key or not isinstance(raw_key, str):
             return None
         
@@ -60,11 +59,11 @@ KEY TOPICS & HOW TO EXPLAIN THEM SIMPLY:
     async def get_response(
         self,
         messages: List[ChatMessage],
-        client_api_key: Optional[str] = None,
         client_model: Optional[str] = None,
         temperature: float = 0.4
     ) -> ChatResponse:
-        api_key = self._sanitize_api_key(client_api_key)
+        # Accept the key ONLY from the server's .env
+        api_key = self._sanitize_api_key(settings.OPENROUTER_API_KEY)
         model = client_model or settings.OPENROUTER_MODEL or "openrouter/free"
 
         if not api_key:

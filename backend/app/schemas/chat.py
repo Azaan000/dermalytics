@@ -7,7 +7,6 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
-    api_key: Optional[str] = None
     model: Optional[str] = None
     temperature: Optional[float] = 0.4
 

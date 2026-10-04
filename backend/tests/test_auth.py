@@ -5,6 +5,8 @@ from app.core.database import SessionLocal
 from app.models.user import User
 from app.core.security import get_password_hash
 
+from app.core.config import settings
+
 client = TestClient(app)
 
 @pytest.fixture(autouse=True)
@@ -16,13 +18,17 @@ def setup_db():
         user = User(
             email="demo@dermalytics.com",
             username="demouser",
-            password_hash=get_password_hash("DemoPass123!"),
+            password_hash=get_password_hash(settings.DEMO_USER_PASSWORD),
             first_name="Demo",
             last_name="Patient",
             is_active=True,
             is_verified=True,
             is_admin=False
         )
+        db.add(user)
+        db.commit()
+    elif user.is_admin:
+        user.is_admin = False
         db.add(user)
         db.commit()
     db.close()
@@ -35,7 +41,7 @@ def test_root_endpoint():
 def test_login_demo_user():
     response = client.post("/api/v1/auth/login", json={
         "email": "demo@dermalytics.com",
-        "password": "DemoPass123!"
+        "password": settings.DEMO_USER_PASSWORD
     })
     assert response.status_code == 200
     data = response.json()
