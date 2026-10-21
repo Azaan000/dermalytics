@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   UploadCloud, 
   Camera, 
@@ -13,6 +13,9 @@ import {
 import { SAMPLE_CASES, SampleCase } from '../../utils/sampleData';
 import { useToast } from '../../context/ToastContext';
 import { analysisApi } from '../../api/analysis';
+import { analyzeImageQuality, ImageQualityReport } from '../../utils/imageQualityChecker';
+import { ImageQualityHelper } from './ImageQualityHelper';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface UploadFormProps {
   initialType?: 'skin' | 'hair';
@@ -27,12 +30,28 @@ export const UploadForm: React.FC<UploadFormProps> = ({ initialType = 'skin', on
   const [progressPhase, setProgressPhase] = useState<string>('');
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [selectedSample, setSelectedSample] = useState<SampleCase | null>(null);
+  const [qualityReport, setQualityReport] = useState<ImageQualityReport | null>(null);
+  const [checkingQuality, setCheckingQuality] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const { showToast } = useToast();
+  const { language, t } = useLanguage();
+  const isUrdu = language === 'ur';
 
   const filteredSamples = SAMPLE_CASES.filter((s) => s.category === assessmentType);
+
+  useEffect(() => {
+    if (previewUrl) {
+      setCheckingQuality(true);
+      analyzeImageQuality(previewUrl)
+        .then((rep) => setQualityReport(rep))
+        .catch(() => setQualityReport(null))
+        .finally(() => setCheckingQuality(false));
+    } else {
+      setQualityReport(null);
+    }
+  }, [previewUrl]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -189,10 +208,10 @@ export const UploadForm: React.FC<UploadFormProps> = ({ initialType = 'skin', on
               assessmentType === 'skin'
                 ? 'bg-white text-sky-700 shadow-md scale-[1.02]'
                 : 'text-slate-600 hover:text-slate-900'
-            }`}
+            } ${isUrdu ? 'font-urdu' : ''}`}
           >
             <Stethoscope className="w-4 h-4 text-sky-600" />
-            <span>Skin Lesion Classifier</span>
+            <span>{isUrdu ? 'جلد کی تشخیص (Skin)' : 'Skin Lesion Classifier'}</span>
           </button>
 
           <button
@@ -201,10 +220,10 @@ export const UploadForm: React.FC<UploadFormProps> = ({ initialType = 'skin', on
               assessmentType === 'hair'
                 ? 'bg-white text-teal-700 shadow-md scale-[1.02]'
                 : 'text-slate-600 hover:text-slate-900'
-            }`}
+            } ${isUrdu ? 'font-urdu' : ''}`}
           >
             <Sparkles className="w-4 h-4 text-teal-600" />
-            <span>Hair & Scalp Health</span>
+            <span>{isUrdu ? 'بالوں کی صحت (Hair)' : 'Hair & Scalp Health'}</span>
           </button>
         </div>
       </div>
@@ -293,29 +312,44 @@ export const UploadForm: React.FC<UploadFormProps> = ({ initialType = 'skin', on
 
           </div>
 
-          {/* Action Trigger Button */}
-          {previewUrl && (
-            <button
-              onClick={handleRunAnalysis}
-              disabled={isAnalyzing}
-              className={`w-full py-4 rounded-2xl font-extrabold text-sm sm:text-base flex items-center justify-center space-x-2 shadow-lg transition-all ${
-                isAnalyzing
-                  ? 'bg-slate-400 text-white cursor-not-allowed'
-                  : 'bg-gradient-to-r from-sky-600 via-sky-700 to-teal-600 hover:from-sky-700 hover:to-teal-700 text-white shadow-sky-600/25 hover:scale-[1.01]'
-              }`}
-            >
-              {isAnalyzing ? (
-                <>
-                  <FlaskConical className="w-5 h-5 animate-spin" />
-                  <span>Processing Neural Inference...</span>
-                </>
-              ) : (
-                <>
-                  <span>Start AI & Grad-CAM Assessment</span>
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </button>
+          {/* Pre-Analysis Smart Photo Quality & Distance Check */}
+          {previewUrl && checkingQuality && (
+            <div className="bg-white rounded-2xl border border-sky-200 p-5 flex items-center justify-center space-x-3 text-sky-700 animate-pulse text-xs font-bold shadow-sm">
+              <Sparkles className="w-5 h-5 animate-spin text-sky-600" />
+              <span className={isUrdu ? 'font-urdu text-sm' : ''}>
+                {isUrdu ? 'تصویر کا کوالٹی، فوکس اور روشنی کا ٹیسٹ جاری ہے...' : 'Testing image sharpness, lighting & camera distance...'}
+              </span>
+            </div>
+          )}
+
+          {previewUrl && qualityReport && (
+            <ImageQualityHelper
+              report={qualityReport}
+              onRetake={() => {
+                setPreviewUrl(null);
+                setSelectedFile(null);
+                setSelectedSample(null);
+                setQualityReport(null);
+              }}
+              onProceed={handleRunAnalysis}
+              isAnalyzing={isAnalyzing}
+            />
+          )}
+
+          {!previewUrl && (
+            <div className="bg-sky-50/80 border border-sky-200 rounded-2xl p-4 flex items-start space-x-3 text-xs text-sky-900 shadow-sm">
+              <Camera className="w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <span className={`font-bold block text-sm ${isUrdu ? 'font-urdu' : ''}`}>
+                  {isUrdu ? 'کیمرے سے تصویر لینے کی اہم ہدایات:' : 'Clinical Camera Distance Guidance:'}
+                </span>
+                <p className={`text-slate-600 leading-relaxed ${isUrdu ? 'font-urdu' : ''}`}>
+                  {isUrdu 
+                    ? 'بہترین اور درست ترین نتائج کے لیے فون کے کیمرے کو جلد یا تل سے 10 سے 15 سینٹی میٹر فاصلے پر رکھیں۔ عام کمرے کی روشنی میں تصویر بنائیں اور براہ راست فلیش کی تیز چمک سے گریز کریں۔'
+                    : 'For maximum AI diagnostic precision, hold your phone camera 10–15 cm from the skin lesion under natural, bright room lighting. Avoid direct flash glare.'}
+                </p>
+              </div>
+            </div>
           )}
 
           {/* Progress Modal Bar */}

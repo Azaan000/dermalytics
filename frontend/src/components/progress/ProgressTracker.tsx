@@ -28,6 +28,7 @@ import {
   Lock,
   Zap,
   Target,
+  SplitSquareVertical,
 } from 'lucide-react';
 import { Assessment } from '../../types/assessment';
 import {
@@ -38,6 +39,7 @@ import {
   Badge,
 } from '../../utils/gamification';
 import { generateTimelapse, downloadBlob } from '../../utils/timelapseGenerator';
+import { BeforeAfterSlider } from './BeforeAfterSlider';
 
 
 // ─────────────────────────────────────────────
@@ -906,17 +908,36 @@ export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ history, onSel
       {/* ── COMPARE TAB ── */}
       {activeTab === 'compare' && (
         <div className="space-y-5">
-          {/* Instructions */}
-          <div className="bg-sky-50 border border-sky-200 rounded-2xl p-4 flex items-start space-x-3 text-xs text-sky-900">
-            <Info className="w-4 h-4 text-sky-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold mb-0.5">How to Compare</p>
-              <p className="text-sky-700">
-                Select up to <strong>3 assessments</strong> from the list below (skin or hair — mix freely) and they
-                will appear side-by-side above for direct comparison.
-              </p>
+          {/* Instructions & 1-Click Compare Action */}
+          <div className="bg-sky-50 border border-sky-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-sky-900">
+            <div className="flex items-start space-x-3">
+              <Info className="w-4 h-4 text-sky-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold mb-0.5">Interactive Longitudinal Comparison</p>
+                <p className="text-sky-700">
+                  Select 2 or 3 assessments below to unlock the <strong>Interactive Before/After Split Slider</strong> and examine structural evolution over time.
+                </p>
+              </div>
             </div>
+
+            {selectedIds.length < 2 && sorted.length >= 2 && (
+              <button
+                onClick={() => setSelectedIds([sorted[sorted.length - 1].id, sorted[sorted.length - 2].id])}
+                className="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 shadow-sm whitespace-nowrap self-start sm:self-auto"
+              >
+                <SplitSquareVertical className="w-3.5 h-3.5" />
+                <span>Compare Latest 2 Scans</span>
+              </button>
+            )}
           </div>
+
+          {/* Interactive Before & After Evolution Split Slider */}
+          {selectedAssessments.length >= 2 && (
+            <BeforeAfterSlider
+              beforeAssessment={selectedAssessments[0]}
+              afterAssessment={selectedAssessments[1]}
+            />
+          )}
 
           {/* Side-by-side comparison cards */}
           {selectedAssessments.length > 0 && (

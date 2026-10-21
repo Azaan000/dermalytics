@@ -25,6 +25,7 @@ import {
   WeatherData,
   UVNudge,
 } from '../../utils/uvWeather';
+import { useLanguage } from '../../context/LanguageContext';
 
 // UV Level Color Map
 const UV_COLORS: Record<string, { bg: string; text: string; bar: string }> = {
@@ -44,6 +45,7 @@ const URGENCY_STYLE: Record<string, string> = {
 type Tab = 'nudges' | 'faq';
 
 export const RoutineCoachWidget: React.FC = () => {
+  const { language, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('nudges');
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -97,9 +99,11 @@ export const RoutineCoachWidget: React.FC = () => {
             )}
           </div>
           <div className="hidden sm:block text-left">
-            <span className="text-sm font-black tracking-wide block">Daily Routine Coach</span>
+            <span className={`text-sm font-black tracking-wide block ${language === 'ur' ? 'font-urdu' : ''}`}>
+              {language === 'ur' ? 'روزمرہ سن کیئر اسسٹنٹ' : 'Daily Routine Coach'}
+            </span>
             <span className="text-xs text-amber-100 font-bold block">
-              {weather ? `Sun Level: ${weather.uv_level} (UV ${weather.uv_index})` : 'Daily Health Tips'}
+              {weather ? `Sun Level: ${weather.uv_level} (UV ${weather.uv_index})` : (language === 'ur' ? 'صحت کے آسان مشورے' : 'Daily Health Tips')}
             </span>
           </div>
         </button>
@@ -117,8 +121,12 @@ export const RoutineCoachWidget: React.FC = () => {
                   <Sun className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold">Your Daily Routine Coach</h3>
-                  <p className="text-xs text-orange-100 font-medium">Easy daily tips for healthy skin and hair</p>
+                  <h3 className={`text-base font-extrabold ${language === 'ur' ? 'font-urdu' : ''}`}>
+                    {language === 'ur' ? 'آپ کا روزمرہ سن کیئر اسسٹنٹ' : 'Your Daily Routine Coach'}
+                  </h3>
+                  <p className={`text-xs text-orange-100 font-medium ${language === 'ur' ? 'font-urdu' : ''}`}>
+                    {language === 'ur' ? 'جلد اور بالوں کی حفاظت کے روزانہ آسان مشورے' : 'Easy daily tips for healthy skin and hair'}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-1.5">
@@ -174,10 +182,10 @@ export const RoutineCoachWidget: React.FC = () => {
                 activeTab === 'nudges'
                   ? 'text-orange-600 border-b-2 border-orange-500 bg-white'
                   : 'text-slate-600 hover:text-slate-900'
-              }`}
+              } ${language === 'ur' ? 'font-urdu' : ''}`}
             >
               <Bell className="w-4 h-4" />
-              <span>Daily Tips & Sun Alert</span>
+              <span>{language === 'ur' ? 'روزانہ مشورے اور سن الرٹ' : 'Daily Tips & Sun Alert'}</span>
             </button>
             <button
               onClick={() => setActiveTab('faq')}
@@ -185,10 +193,10 @@ export const RoutineCoachWidget: React.FC = () => {
                 activeTab === 'faq'
                   ? 'text-sky-600 border-b-2 border-sky-500 bg-white'
                   : 'text-slate-600 hover:text-slate-900'
-              }`}
+              } ${language === 'ur' ? 'font-urdu' : ''}`}
             >
               <HelpCircle className="w-4 h-4" />
-              <span>Simple Q&A Guide</span>
+              <span>{language === 'ur' ? 'آسان سوال و جواب' : 'Simple Q&A Guide'}</span>
             </button>
           </div>
 

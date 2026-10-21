@@ -11,12 +11,15 @@ import {
   Square,
   Sparkles,
   Stethoscope,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 import { Assessment } from '../../types/assessment';
 import { formatDate, getRiskBadgeColor } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 import { SAMPLE_CASES } from '../../utils/sampleData';
+import { ClinicalReportModal } from '../report/ClinicalReportModal';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface HistoryListProps {
   history: Assessment[];
@@ -32,7 +35,9 @@ export const HistoryList: React.FC<HistoryListProps> = ({
   const [filterType, setFilterType] = useState<'all' | 'skin' | 'hair'>('all');
   const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
   const [showCompareModal, setShowCompareModal] = useState<boolean>(false);
+  const [reportAssessment, setReportAssessment] = useState<Assessment | null>(null);
   const { showToast } = useToast();
+  const { language, t } = useLanguage();
 
   const filtered = history.filter((item) => {
     if (filterType === 'all') return true;
@@ -209,13 +214,23 @@ export const HistoryList: React.FC<HistoryListProps> = ({
 
                 {/* Bottom Actions */}
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                  <button
-                    onClick={() => onSelectAssessment(item)}
-                    className="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center space-x-1"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>View Diagnostic Details</span>
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => onSelectAssessment(item)}
+                      className="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center space-x-1"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>{language === 'ur' ? 'معائنہ دیکھیں' : 'View Details'}</span>
+                    </button>
+                    <button
+                      onClick={() => setReportAssessment(item)}
+                      className="text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-lg flex items-center space-x-1 transition-colors"
+                      title="Generate Clinical PDF Report"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-sky-600" />
+                      <span>{language === 'ur' ? 'رپورٹ (PDF)' : 'PDF Report'}</span>
+                    </button>
+                  </div>
 
                   <button
                     onClick={() => onDeleteAssessment(item.id)}
@@ -280,6 +295,14 @@ export const HistoryList: React.FC<HistoryListProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Clinical Consultation PDF Report Modal */}
+      {reportAssessment && (
+        <ClinicalReportModal
+          assessment={reportAssessment}
+          onClose={() => setReportAssessment(null)}
+        />
       )}
 
     </div>
