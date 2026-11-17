@@ -18,6 +18,8 @@ class User(Base):
     gender = Column(String(10), nullable=True)
     is_active = Column(Boolean, default=True, index=True)
     is_admin = Column(Boolean, default=False)
+    is_doctor = Column(Boolean, default=False, index=True)
+    role = Column(String(20), default="patient", index=True)  # 'patient', 'doctor', 'admin'
     is_verified = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -31,3 +33,4 @@ class User(Base):
     assessments = relationship("Assessment", back_populates="user", cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="user", cascade="all, delete-orphan")
     feedback = relationship("Feedback", back_populates="user", cascade="all, delete-orphan")
+    doctor_profile = relationship("Doctor", back_populates="user", uselist=False, cascade="all, delete-orphan")

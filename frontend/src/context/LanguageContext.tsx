@@ -100,6 +100,8 @@ const TRANSLATIONS: Record<string, { en: string; ur: string }> = {
   'nav.dashboard': { en: 'Dashboard', ur: 'ڈیش بورڈ' },
   'nav.skinAnalysis': { en: 'Skin Lesion AI', ur: 'جلد کا معائنہ' },
   'nav.hairAnalysis': { en: 'Scalp & Hair AI', ur: 'بالوں کا معائنہ' },
+  'nav.doctors': { en: 'Find Specialists', ur: 'ڈاکٹرز تلاش کریں' },
+  'nav.doctorPortal': { en: 'Doctor Portal', ur: 'ڈاکٹر پورٹل' },
   'nav.history': { en: 'Timeline History', ur: 'سابقہ ریکارڈ' },
   'nav.progress': { en: 'Track Progress', ur: 'ترقی اور موازنہ' },
   'nav.admin': { en: 'Admin Panel', ur: 'ایڈمن پینل' },
@@ -109,6 +111,7 @@ const TRANSLATIONS: Record<string, { en: string; ur: string }> = {
   // Auth & Actions
   'auth.signIn': { en: 'Sign In / Register', ur: 'لاگ ان / نیا اکاؤنٹ' },
   'auth.demoPatient': { en: 'Demo Patient', ur: 'ڈیمو مریض' },
+  'auth.demoDoctor': { en: 'Demo Doctor (FCPS)', ur: 'ڈیمو ڈاکٹر' },
   'auth.signOut': { en: 'Log Out', ur: 'لاگ آؤٹ' },
 
   // Common UI

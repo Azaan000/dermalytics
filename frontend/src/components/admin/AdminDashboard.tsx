@@ -10,15 +10,22 @@ import {
   RefreshCw,
   Search,
   Lock,
-  Layers
+  Layers,
+  Stethoscope,
+  Award,
+  XCircle,
+  Building,
+  Phone,
+  Clock
 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { formatDate } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
 
 export const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'logs'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'doctors' | 'logs'>('overview');
   const [users, setUsers] = useState<any[]>([]);
+  const [pendingDoctors, setPendingDoctors] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
   const [health, setHealth] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -27,10 +34,11 @@ export const AdminDashboard: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [uRes, aRes, hRes] = await Promise.allSettled([
+      const [uRes, aRes, hRes, dRes] = await Promise.allSettled([
         adminApi.getUsers(),
         adminApi.getAnalytics(),
-        adminApi.getHealth()
+        adminApi.getHealth(),
+        adminApi.getPendingDoctors()
       ]);
 
       if (uRes.status === 'fulfilled' && uRes.value.data) {
@@ -41,6 +49,9 @@ export const AdminDashboard: React.FC = () => {
       }
       if (hRes.status === 'fulfilled' && hRes.value.data) {
         setHealth(hRes.value.data);
+      }
+      if (dRes.status === 'fulfilled' && dRes.value.data) {
+        setPendingDoctors(dRes.value.data.pending_doctors || []);
       }
     } catch {
       // Fallback demo admin data
@@ -65,6 +76,26 @@ export const AdminDashboard: React.FC = () => {
   const handleToggleUser = (userId: string, currentStatus: boolean) => {
     setUsers(users.map(u => u.id === userId ? { ...u, is_active: !currentStatus } : u));
     showToast(`User status updated to ${!currentStatus ? 'Active' : 'Suspended'}`, 'info');
+  };
+
+  const handleVerifyDoctor = async (doctorId: string, name: string) => {
+    try {
+      await adminApi.verifyDoctor(doctorId);
+      showToast(`Doctor ${name} verified! PMDC credentials approved.`, 'success');
+      setPendingDoctors(prev => prev.filter(d => d.id !== doctorId));
+    } catch (err: any) {
+      showToast('Failed to verify doctor.', 'error');
+    }
+  };
+
+  const handleRejectDoctor = async (doctorId: string, name: string) => {
+    try {
+      await adminApi.rejectDoctor(doctorId);
+      showToast(`Application for ${name} rejected.`, 'info');
+      setPendingDoctors(prev => prev.filter(d => d.id !== doctorId));
+    } catch (err: any) {
+      showToast('Failed to reject doctor application.', 'error');
+    }
   };
 
   return (
@@ -121,6 +152,22 @@ export const AdminDashboard: React.FC = () => {
           }`}
         >
           User Management ({users.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('doctors')}
+          className={`px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5 ${
+            activeTab === 'doctors'
+              ? 'bg-emerald-600 text-white shadow-sm'
+              : 'text-slate-600 hover:text-slate-900 bg-white border border-slate-200'
+          }`}
+        >
+          <Stethoscope className="w-3.5 h-3.5" />
+          <span>Doctor Verifications</span>
+          {pendingDoctors.length > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full bg-amber-400 text-amber-950 text-[10px] font-black">
+              {pendingDoctors.length}
+            </span>
+          )}
         </button>
         <button
           onClick={() => setActiveTab('logs')}
@@ -268,6 +315,90 @@ export const AdminDashboard: React.FC = () => {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* Tab: Doctor Credential Verification */}
+      {activeTab === 'doctors' && (
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden space-y-4 p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="text-base font-black text-slate-900 flex items-center space-x-2">
+                <Stethoscope className="w-5 h-5 text-emerald-600" />
+                <span>Specialist Credential Verification & PMDC Audit</span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Review self-registered healthcare practitioners and authorize access to clinical diagnostic review queue.
+              </p>
+            </div>
+            <span className="text-xs font-bold px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full w-fit">
+              {pendingDoctors.length} Pending Approval
+            </span>
+          </div>
+
+          {pendingDoctors.length === 0 ? (
+            <div className="text-center py-12 space-y-3">
+              <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
+              <h4 className="text-base font-bold text-slate-800">All Specialists Verified</h4>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                There are no pending doctor registration applications awaiting PMDC licensing audit. Newly registered physicians will appear here automatically.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              {pendingDoctors.map((doc) => (
+                <div key={doc.id} className="bg-slate-50 rounded-2xl border border-slate-200 p-5 space-y-4 hover:shadow-md transition">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <h4 className="font-extrabold text-slate-900 text-sm">{doc.full_name}</h4>
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded border border-emerald-300">
+                          {doc.pmdc_number}
+                        </span>
+                      </div>
+                      <p className="text-xs text-emerald-700 font-semibold mt-0.5">{doc.specialty}</p>
+                      <p className="text-[11px] text-slate-500">{doc.qualification}</p>
+                    </div>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
+                      Pending Audit
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs text-slate-600 border-t border-slate-200/60 pt-3">
+                    <div className="flex items-center space-x-2">
+                      <Building className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <span>{doc.hospital_name} ({doc.city})</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Phone className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                      <span>{doc.phone || 'No phone provided'} · Fee: PKR {doc.consultation_fee}</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-[11px] text-slate-400">
+                      <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Applied on {doc.created_at ? formatDate(doc.created_at) : 'Recent'}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200/60">
+                    <button
+                      onClick={() => handleRejectDoctor(doc.id, doc.full_name)}
+                      className="px-3.5 py-1.5 bg-white hover:bg-rose-50 text-rose-700 rounded-xl text-xs font-bold border border-rose-200 transition flex items-center space-x-1"
+                    >
+                      <XCircle className="w-3.5 h-3.5" />
+                      <span>Reject</span>
+                    </button>
+                    <button
+                      onClick={() => handleVerifyDoctor(doc.id, doc.full_name)}
+                      className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold shadow-sm transition flex items-center space-x-1"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Approve & Grant Access</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

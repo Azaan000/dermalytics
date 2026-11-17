@@ -9,7 +9,8 @@ import {
   AlertCircle, 
   TrendingUp,
   Camera,
-  Layers
+  Layers,
+  MapPin
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Assessment } from '../../types/assessment';
@@ -212,6 +213,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Doctor Locator & Second Opinion Quick Card */}
+          <div className="bg-gradient-to-br from-teal-50 to-sky-50 border border-teal-200/80 rounded-3xl p-6 space-y-3">
+            <div className="flex items-center space-x-2">
+              <MapPin className="w-5 h-5 text-teal-700" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-teal-900">
+                Pakistani Specialists
+              </h4>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Find PMDC-registered dermatologists across Clifton, Gulshan, PECHS, Lahore & Islamabad. Request second opinions on your scans.
+            </p>
+            <button
+              onClick={() => onNavigate('doctors')}
+              className="w-full py-2.5 px-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center justify-center space-x-1.5"
+            >
+              <Stethoscope className="w-4 h-4" />
+              <span>Find Nearby Specialists</span>
+            </button>
           </div>
         </div>
 

@@ -17,6 +17,8 @@ import { formatDate } from '../../utils/formatters';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { generateReportQRCode, generateVerificationHash } from '../../utils/qrGenerator';
+import { doctorsApi } from '../../api/doctors';
+import { ScanReview } from '../../types/doctor';
 
 interface ClinicalReportModalProps {
   assessment: any;
@@ -28,6 +30,7 @@ export const ClinicalReportModal: React.FC<ClinicalReportModalProps> = ({ assess
   const { language: globalLang } = useLanguage();
   const [reportLang, setReportLang] = useState<'en' | 'ur'>(globalLang);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [doctorReview, setDoctorReview] = useState<ScanReview | null>(null);
 
   const isSkin = assessment.assessment_type === 'skin' || assessment.type === 'skin';
   const prediction = assessment.prediction || {};
@@ -35,6 +38,14 @@ export const ClinicalReportModal: React.FC<ClinicalReportModalProps> = ({ assess
   const reportId = assessment.assessment_id || assessment.id || `DL-${Date.now().toString(36).toUpperCase()}`;
   const timestamp = assessment.created_at || new Date().toISOString();
   const verificationHash = generateVerificationHash(reportId, timestamp);
+
+  useEffect(() => {
+    if (assessment.assessment_id || assessment.id) {
+      doctorsApi.getReviewForAssessment(assessment.assessment_id || assessment.id)
+        .then(setDoctorReview)
+        .catch(() => {});
+    }
+  }, [assessment]);
 
   useEffect(() => {
     const patientName = user?.first_name 
@@ -403,24 +414,63 @@ export const ClinicalReportModal: React.FC<ClinicalReportModalProps> = ({ assess
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Doctor’s Diagnostic Notes / Clinical Impression:
               </span>
-              <div className="h-10 border-b border-dashed border-slate-300"></div>
-              <div className="h-6 border-b border-dashed border-slate-300"></div>
+              {doctorReview?.status === 'completed' || doctorReview?.status === 'reviewed' ? (
+                <div className="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200 text-xs text-slate-800 space-y-1">
+                  <p className="font-bold text-emerald-950">
+                    Impression: {doctorReview.clinical_impression}
+                  </p>
+                  {doctorReview.doctor_notes && (
+                    <p className="text-slate-600 italic">
+                      "{doctorReview.doctor_notes}"
+                    </p>
+                  )}
+                  {doctorReview.recommended_action && (
+                    <p className="text-slate-700 text-[11px] font-semibold">
+                      Plan: {doctorReview.recommended_action} (Follow-up: {doctorReview.follow_up_days || 30} days)
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="h-10 border-b border-dashed border-slate-300"></div>
+                  <div className="h-6 border-b border-dashed border-slate-300"></div>
+                </>
+              )}
             </div>
 
             {/* Signature & Hospital Stamp Blocks */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-4 border-t border-slate-200 text-xs text-slate-600">
               <div>
                 <span className="text-slate-400 block text-[10px] uppercase">Examining Dermatologist</span>
-                <span className="font-bold text-slate-800 block mt-1">Dr. _______________________</span>
-                <span className="text-[10px] text-slate-400">PMDC / License Reg #: ___________</span>
+                <span className="font-bold text-slate-800 block mt-1">
+                  {doctorReview?.doctor?.full_name || 'Dr. _______________________'}
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  PMDC / License Reg #: {doctorReview?.doctor?.pmdc_number || '___________'}
+                </span>
               </div>
               <div>
                 <span className="text-slate-400 block text-[10px] uppercase">Signature & Date</span>
-                <span className="font-bold text-slate-800 block mt-1">Sign: _____________________</span>
-                <span className="text-[10px] text-slate-400">Date: ____ / ____ / 2026</span>
+                <span className="font-bold text-emerald-700 block mt-1 font-mono">
+                  {(doctorReview?.status === 'completed' || doctorReview?.status === 'reviewed') ? '✓ Digitally Signed' : 'Sign: _____________________'}
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  Date: {doctorReview?.reviewed_at ? new Date(doctorReview.reviewed_at).toLocaleDateString() : '____ / ____ / 2026'}
+                </span>
               </div>
-              <div className="border border-dashed border-slate-300 rounded-xl p-2 text-center flex flex-col items-center justify-center bg-slate-50 text-[10px] text-slate-400">
-                <span>[ Official Hospital / Clinic Stamp ]</span>
+              <div className={`border rounded-xl p-2 text-center flex flex-col items-center justify-center text-[10px] ${
+                (doctorReview?.status === 'completed' || doctorReview?.status === 'reviewed')
+                  ? 'border-emerald-400 bg-emerald-50 text-emerald-800 font-bold'
+                  : 'border-dashed border-slate-300 bg-slate-50 text-slate-400'
+              }`}>
+                {doctorReview?.status === 'completed' || doctorReview?.status === 'reviewed' ? (
+                  <>
+                    <span className="uppercase text-[9px] tracking-wider text-emerald-900">PMDC Certified Tele-Review</span>
+                    <span className="text-[8px] font-mono text-emerald-600">Hamdard University Hospital</span>
+                  </>
+                ) : (
+                  <span>[ Official Hospital / Clinic Stamp ]</span>
+                )}
               </div>
             </div>
           </div>

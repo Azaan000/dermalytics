@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, Query, Body
+from fastapi import APIRouter, Depends, Query, Body, HTTPException
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User
+from app.models.doctor import Doctor
 from app.api.v1.endpoints.auth import get_current_user
 from app.schemas.response import StandardResponse
 from app.services.admin_service import admin_service
@@ -68,4 +69,71 @@ def get_metrics(
             "cache_hit_ratio": "88.4%",
             "overview": analytics["overview"]
         }
+    )
+
+@router.get("/doctors/pending", response_model=StandardResponse)
+def get_pending_doctors(
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    pending = db.query(Doctor).filter(Doctor.is_verified == False).order_by(Doctor.created_at.desc()).all()
+    results = []
+    for d in pending:
+        results.append({
+            "id": d.id,
+            "user_id": d.user_id,
+            "full_name": d.full_name,
+            "pmdc_number": d.pmdc_number,
+            "qualification": d.qualification,
+            "specialty": d.specialty,
+            "hospital_name": d.hospital_name,
+            "city": d.city,
+            "area": d.area,
+            "phone": d.phone,
+            "email": d.email,
+            "consultation_fee": d.consultation_fee,
+            "created_at": d.created_at.isoformat() if d.created_at else None
+        })
+    return StandardResponse(status="success", data={"pending_doctors": results, "total": len(results)})
+
+@router.post("/doctors/{doctor_id}/verify", response_model=StandardResponse)
+def verify_doctor(
+    doctor_id: str,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    doc = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor application not found")
+    
+    doc.is_verified = True
+    if doc.user:
+        doc.user.is_verified = True
+    db.commit()
+
+    return StandardResponse(
+        status="success",
+        message=f"Doctor {doc.full_name} (PMDC #{doc.pmdc_number}) verified and granted clinical workspace access.",
+        data={"id": doc.id, "is_verified": True}
+    )
+
+@router.post("/doctors/{doctor_id}/reject", response_model=StandardResponse)
+def reject_doctor(
+    doctor_id: str,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    doc = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor application not found")
+    
+    if doc.user:
+        doc.user.is_active = False
+    db.delete(doc)
+    db.commit()
+
+    return StandardResponse(
+        status="success",
+        message=f"Doctor application for {doc.full_name} rejected.",
+        data={"id": doctor_id, "rejected": True}
     )

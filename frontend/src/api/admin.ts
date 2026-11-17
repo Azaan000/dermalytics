@@ -25,5 +25,20 @@ export const adminApi = {
   getMetrics: async () => {
     const res = await apiClient.get<ApiResponse>('/admin/metrics');
     return res.data;
+  },
+
+  getPendingDoctors: async () => {
+    const res = await apiClient.get<ApiResponse>('/admin/doctors/pending');
+    return res.data;
+  },
+
+  verifyDoctor: async (doctorId: string) => {
+    const res = await apiClient.post<ApiResponse>(`/admin/doctors/${doctorId}/verify`);
+    return res.data;
+  },
+
+  rejectDoctor: async (doctorId: string) => {
+    const res = await apiClient.post<ApiResponse>(`/admin/doctors/${doctorId}/reject`);
+    return res.data;
   }
 };

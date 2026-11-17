@@ -12,6 +12,23 @@ class UserRegister(BaseModel):
     date_of_birth: Optional[str] = None
     gender: Optional[str] = None
 
+class DoctorRegister(BaseModel):
+    email: EmailStr
+    username: str = Field(..., min_length=3, max_length=50)
+    password: str = Field(..., min_length=8)
+    first_name: str
+    last_name: str
+    pmdc_number: str = Field(..., min_length=5, description="PMDC / PMC Registration Number")
+    qualification: str = Field(..., description="e.g. MBBS, FCPS (Dermatology)")
+    specialty: str = Field(default="Dermatology")
+    hospital_name: str = Field(..., description="Hospital or clinic affiliation")
+    city: str = Field(default="Karachi")
+    area: str = Field(default="Clifton")
+    address: str = Field(default="Consultant Clinic")
+    phone: Optional[str] = None
+    whatsapp: Optional[str] = None
+    consultation_fee: int = Field(default=2500, ge=500)
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
@@ -50,6 +67,8 @@ class UserOut(BaseModel):
     is_active: bool
     is_admin: bool
     is_verified: bool
+    is_doctor: Optional[bool] = False
+    role: Optional[str] = "patient"
     created_at: datetime
     last_login: Optional[datetime] = None
     profile_picture_url: Optional[str] = None

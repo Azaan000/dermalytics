@@ -8,6 +8,8 @@ export interface User {
   date_of_birth?: string;
   gender?: string;
   is_admin: boolean;
+  is_doctor?: boolean;
+  role?: string;
   is_verified: boolean;
   created_at: string;
   last_login?: string;

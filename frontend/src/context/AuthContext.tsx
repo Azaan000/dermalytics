@@ -7,8 +7,9 @@ import { getErrorMessage } from '../utils/errorHandler';
 
 interface AuthContextType extends AuthState {
   login: (email: string, pass: string) => Promise<boolean>;
-  loginDemo: (role?: 'patient' | 'admin') => Promise<void>;
+  loginDemo: (role?: 'patient' | 'admin' | 'doctor') => Promise<void>;
   register: (data: any) => Promise<boolean>;
+  registerDoctor: (data: any) => Promise<boolean>;
   logout: () => void;
   updateUser: (data: Partial<User>) => void;
 }
@@ -78,36 +79,79 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginDemo = async (role: 'patient' | 'admin' = 'patient') => {
+  const loginDemo = async (role: 'patient' | 'admin' | 'doctor' = 'patient') => {
     setIsLoading(true);
-    const demoUser: User = role === 'admin' ? {
-      id: 'admin-user-001',
-      email: 'admin@dermalytics.com',
-      username: 'dr_khurram',
-      first_name: 'Dr. Khurram',
-      last_name: 'Iqbal',
-      gender: 'Male',
-      is_admin: true,
-      is_verified: true,
-      created_at: '2026-08-01T09:00:00Z'
-    } : {
-      id: 'demo-user-100',
-      email: 'demo@dermalytics.com',
-      username: 'demo_patient',
-      first_name: 'Ayesha',
-      last_name: 'Khan',
-      gender: 'Female',
-      is_admin: false,
-      is_verified: true,
-      created_at: '2026-08-10T11:00:00Z'
-    };
+    let demoUser: User;
+    if (role === 'admin') {
+      demoUser = {
+        id: 'admin-user-001',
+        email: 'admin@dermalytics.com',
+        username: 'dr_khurram',
+        first_name: 'Dr. Khurram',
+        last_name: 'Iqbal',
+        gender: 'Male',
+        is_admin: true,
+        is_doctor: false,
+        role: 'admin',
+        is_verified: true,
+        created_at: '2026-08-01T09:00:00Z'
+      };
+    } else if (role === 'doctor') {
+      demoUser = {
+        id: 'doctor-user-001',
+        email: 'doctor@dermalytics.com',
+        username: 'drfatima',
+        first_name: 'Dr. Fatima',
+        last_name: 'Tariq',
+        gender: 'Female',
+        is_admin: false,
+        is_doctor: true,
+        role: 'doctor',
+        is_verified: true,
+        created_at: '2026-08-01T09:00:00Z'
+      };
+    } else {
+      demoUser = {
+        id: 'demo-user-100',
+        email: 'demo@dermalytics.com',
+        username: 'demo_patient',
+        first_name: 'Ayesha',
+        last_name: 'Khan',
+        gender: 'Female',
+        is_admin: false,
+        is_doctor: false,
+        role: 'patient',
+        is_verified: true,
+        created_at: '2026-08-10T11:00:00Z'
+      };
+    }
+
+    // Try actual backend login for doctor/admin if password matches, or set local state
+    if (role === 'doctor') {
+      try {
+        const res = await authApi.login('doctor@dermalytics.com', 'Doctor@123');
+        if (res.status === 'success' && res.data) {
+          demoUser = res.data.user;
+          const tok = res.data.access_token;
+          setUser(demoUser);
+          setToken(tok);
+          localStorage.setItem('dermalytics_user', JSON.stringify(demoUser));
+          localStorage.setItem('dermalytics_token', tok);
+          setIsLoading(false);
+          showToast('Logged in as Dr. Fatima Tariq (Clinical Specialist)', 'success');
+          return;
+        }
+      } catch (e) {
+        // Fallback to local session
+      }
+    }
 
     setUser(demoUser);
     setToken(`demo-${role}-jwt-token`);
     localStorage.setItem('dermalytics_user', JSON.stringify(demoUser));
     localStorage.setItem('dermalytics_token', `demo-${role}-jwt-token`);
     setIsLoading(false);
-    showToast(`Logged in as Demo ${role === 'admin' ? 'Administrator' : 'Patient'}`, 'success');
+    showToast(`Logged in as Demo ${role === 'admin' ? 'Administrator' : role === 'doctor' ? 'Clinician' : 'Patient'}`, 'success');
   };
 
   const register = async (data: any): Promise<boolean> => {
@@ -116,6 +160,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await authApi.register(data);
       if (res.status === 'success') {
         showToast('Registration successful! Please log in.', 'success');
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      showToast(getErrorMessage(err), 'error');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const registerDoctor = async (data: any): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      const res = await authApi.registerDoctor(data);
+      if (res.status === 'success') {
+        showToast('Application submitted! Your PMDC credentials are under administrative review.', 'success');
         return true;
       }
       return false;
@@ -153,6 +214,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         loginDemo,
         register,
+        registerDoctor,
         logout,
         updateUser
       }}

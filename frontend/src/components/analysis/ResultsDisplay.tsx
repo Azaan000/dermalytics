@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { GradCAMViewer } from './GradCAMViewer';
 import { ClinicalReportModal } from '../report/ClinicalReportModal';
+import { DoctorReviewCard } from '../doctors/DoctorReviewCard';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -362,6 +363,12 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
         assessmentType={assessment.assessment_type || assessment.type}
         predictedClass={prediction.class || prediction.thinning_stage}
         rationale={prediction.diagnostic_rationale}
+      />
+
+      {/* Doctor Collaborative Second-Opinion Card */}
+      <DoctorReviewCard
+        assessment={assessment}
+        onOpenReport={() => setShowReportModal(true)}
       />
 
       {/* Bottom Action Button */}

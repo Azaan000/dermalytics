@@ -5,6 +5,7 @@ from app.models.audit_log import AuditLog
 from app.models.notification import Notification
 from app.models.system_settings import SystemSetting
 from app.models.feedback import Feedback, TrainingDataLog
+from app.models.doctor import Doctor, ScanReview
 
 __all__ = [
     "User",
@@ -14,5 +15,7 @@ __all__ = [
     "Notification",
     "SystemSetting",
     "Feedback",
-    "TrainingDataLog"
+    "TrainingDataLog",
+    "Doctor",
+    "ScanReview"
 ]

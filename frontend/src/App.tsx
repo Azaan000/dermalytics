@@ -9,6 +9,8 @@ import { HistoryList } from './components/history/HistoryList';
 import { ProgressTracker } from './components/progress/ProgressTracker';
 import { ProfileForm } from './components/profile/ProfileForm';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { DoctorDirectory } from './components/doctors/DoctorDirectory';
+import { DoctorPortal } from './components/doctors/DoctorPortal';
 import { AuthModal } from './components/auth/AuthModal';
 import { AiChatWidget } from './components/chat/AiChatWidget';
 import { RoutineCoachWidget } from './components/coach/RoutineCoachWidget';
@@ -24,6 +26,15 @@ export function App() {
   const [history, setHistory] = useState<Assessment[]>([]);
 
   const { isAuthenticated, user } = useAuth();
+
+  const isDoctor = !!(user?.is_doctor || user?.role === 'doctor');
+
+  // Auto-redirect doctors to their portal when on landing/dashboard
+  useEffect(() => {
+    if (isDoctor && (currentTab === 'landing' || currentTab === 'dashboard')) {
+      setCurrentTab('doctor-portal');
+    }
+  }, [isDoctor]);
 
   // Load initial demo assessment history
   useEffect(() => {
@@ -189,6 +200,14 @@ export function App() {
                 history={history}
                 onSelectAssessment={handleSelectAssessment}
               />
+            )}
+
+            {currentTab === 'doctors' && (
+              <DoctorDirectory />
+            )}
+
+            {currentTab === 'doctor-portal' && (
+              <DoctorPortal />
             )}
 
             {currentTab === 'profile' && (

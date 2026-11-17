@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.core.security import decode_token
 from app.core.exceptions import AuthenticationException
 from app.models.user import User
-from app.schemas.user import UserRegister, UserLogin, TokenResponse, PasswordChange, PasswordReset
+from app.schemas.user import UserRegister, DoctorRegister, UserLogin, TokenResponse, PasswordChange, PasswordReset
 from app.schemas.response import StandardResponse
 from app.services.auth_service import auth_service
 from app.services.user_service import user_service
@@ -65,6 +65,24 @@ def register(user_in: UserRegister, request: Request, db: Session = Depends(get_
             "username": user.username,
             "created_at": user.created_at.isoformat(),
             "requires_verification": False
+        }
+    )
+
+@router.post("/register-doctor", response_model=StandardResponse)
+def register_doctor(doctor_in: DoctorRegister, request: Request, db: Session = Depends(get_db)):
+    ip = request.client.host if request.client else None
+    user = auth_service.register_doctor(db, doctor_in, ip=ip)
+    return StandardResponse(
+        status="success",
+        message="Doctor credentials submitted successfully. Your PMDC license is under administrative review.",
+        data={
+            "user_id": user.id,
+            "email": user.email,
+            "username": user.username,
+            "is_doctor": True,
+            "is_verified": False,
+            "created_at": user.created_at.isoformat(),
+            "requires_verification": True
         }
     )
 

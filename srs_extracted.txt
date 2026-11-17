@@ -1,0 +1,1655 @@
+Hamdard University
+
+Department of Computing
+
+Final Year Project
+
+   
+
+Dermalytics: AI-Driven Skin and Hair Health Assessment Platform
+
+(<Project Code>)
+
+Software Requirements Specifications
+
+Submitted by
+
+Syed Azan Ahmed (3119-2023)
+
+Asma Ghani (3226-2023)
+
+Hania Saeed (2235-2023)
+
+Supervisor(s)
+
+Khalid Charan
+
+Fall 2026
+
+Document Sign off Sheet
+
+Document Information
+
+Project Title
+
+Dermalytics: AI-Driven Skin and Hair Health Assessment Platform
+
+Project Code
+
+<Project Code>
+
+Document Name
+
+Software Requirements Specifications
+
+Document Version
+
+1.0
+
+Document Identifier
+
+<Project Code>-SRS
+
+Document Status
+
+Draft
+
+Author(s)
+
+Syed Azan Ahmed, Asma Ghani, Hania Saeed
+
+Approver(s)
+
+Khalid Charan
+
+Issue Date
+
+17/Nov/2026
+
+Name
+
+Role
+
+Signature
+
+Date
+
+Syed Azan Ahmed
+
+Team Lead
+
+Asma Ghani
+
+Team Member 2
+
+Hania Saeed
+
+Team Member 3
+
+Khalid Charan
+
+Supervisor
+
+N/A
+
+Co-Supervisor
+
+Project Coordinator
+
+Revision History
+
+Date
+
+Version
+
+Description
+
+Author
+
+17/Nov/2026
+
+1.0
+
+Initial draft
+
+Dermalytics Team
+
+Definition of Terms, Acronyms, and Abbreviations
+
+Term
+
+Description
+
+AI / ML
+
+Artificial Intelligence / Machine Learning: techniques that let software learn patterns from data to make predictions.
+
+CNN
+
+Convolutional Neural Network: a deep learning model type widely used for image analysis.
+
+Grad-CAM
+
+Gradient-weighted Class Activation Mapping: a method that produces a heatmap showing which image regions influenced a model’s prediction.
+
+XAI
+
+Explainable AI: techniques that make a model’s predictions understandable to people.
+
+SHAP
+
+SHapley Additive exPlanations: an optional, future explainability method.
+
+EfficientNet / ResNet50 / MobileNetV3
+
+Pretrained CNN architectures that are fine-tuned for skin and hair analysis.
+
+Transfer learning
+
+Reusing a model pretrained on a large dataset (ImageNet) and fine-tuning it on a new task.
+
+HAM10000
+
+Public dataset of 10,015 dermoscopic images across seven diagnostic categories of skin lesions.
+
+ISIC
+
+International Skin Imaging Collaboration; its 2017 challenge dataset is used for supplementary validation.
+
+Dermoscopy
+
+Magnified imaging of the skin surface used to examine skin lesions.
+
+Trichology
+
+The study of hair and scalp health.
+
+Androgenetic alopecia
+
+A common pattern of progressive hair thinning and hair loss.
+
+Norwood-Hamilton / Ludwig scales
+
+Visual reference scales used in trichology to describe stages of hair loss.
+
+Confidence score
+
+The probability the model assigns to its predicted class, shown to the user.
+
+F1-score
+
+Evaluation metric combining precision and recall, used with accuracy to select the best model.
+
+Domain shift
+
+A drop in model performance when real-world images differ from the training data (e.g., lighting, environment, demographics).
+
+Preliminary screening indicator
+
+An output that supports early awareness only; it is not a diagnosis.
+
+SRS
+
+Software Requirements Specifications (this document).
+
+FR / NFR
+
+Functional Requirement / Non-Functional Requirement.
+
+REST API
+
+Representational State Transfer Application Programming Interface: the web interface between frontend and backend.
+
+SPA
+
+Single-Page Application: a web app that updates in the browser without full page reloads.
+
+HTTPS
+
+HTTP over TLS: encrypted communication between browser and server.
+
+APK
+
+Android Package: the installable file format for Android apps.
+
+WebView wrapper
+
+A thin native shell (e.g., Trusted Web Activity, Capacitor, Cordova) that loads a web app like an installed app.
+
+Agile / Sprint
+
+Iterative development approach / a short development cycle that delivers a working component.
+
+UC / R#
+
+Use Case identifier / system function reference number used in this document.
+
+ Table of Contents
+
+1.Introduction6
+
+1.1Purpose of Document6
+
+1.2Intended Audience6
+
+1.3Abbreviations6
+
+2.Overall System Description7
+
+2.1Project Background7
+
+2.2Problem Statement7
+
+2.3Project Scope7
+
+2.4Not In Scope8
+
+2.5Project Objectives8
+
+2.6Stakeholders & Affected Groups8
+
+2.7Operating Environment9
+
+2.8System Constraints9
+
+2.9Assumptions & Dependencies9
+
+3.External Interface Requirements11
+
+3.1Hardware Interfaces11
+
+3.2Software Interfaces11
+
+3.3Communications Interfaces11
+
+4.System Functions / Functional Requirements13
+
+4.1System Functions13
+
+4.2Use Cases15
+
+4.2.1List of Actors15
+
+4.2.2List of Use Cases15
+
+4.2.3Use Case Diagram16
+
+4.2.4Description of Use Cases17
+
+5.Non - Functional Requirements24
+
+5.1Performance Requirements24
+
+5.2Safety Requirements24
+
+5.3Security Requirements24
+
+5.4Reliability Requirements24
+
+5.5Usability Requirements25
+
+5.6Supportability Requirements25
+
+5.7User Documentation25
+
+6.References26
+
+Introduction 
+
+This document is the Software Requirements Specifications (SRS) for Dermalytics, an AI-driven skin and hair health assessment platform delivered as a responsive web application. It describes what the system must do, the interfaces it relies on, and the quality attributes it must satisfy.
+
+Purpose of Document 
+
+The purpose of this SRS is to define, in one place, the functional and non-functional requirements of Dermalytics version 1.0. It translates the approved project proposal into verifiable requirements and serves as the agreed baseline between the development team and the supervisor. It is the reference for design, implementation, testing and acceptance during the nine Agile sprints (September 2026 to February 2027).
+
+Dermalytics lets users upload images of skin lesions and scalp conditions, classifies common skin conditions, estimates hair density and thinning, explains each prediction with Grad-CAM heatmaps, and stores assessment history so that users can monitor changes over time. All outputs are preliminary screening indicators, not diagnoses.
+
+Intended Audience
+
+Reader
+
+How they use this document
+
+Supervisor and evaluators
+
+Review and approve the scope, requirements and use cases; judge completeness against the proposal.
+
+Development team (AI/ML, backend, frontend)
+
+Use the functions, interfaces and use cases as the basis for design and implementation in each sprint.
+
+Testers / QA
+
+Derive test cases for system, usability and integration testing (Sprint 8) from the requirements and use case flows.
+
+Local dermatologist (consulted)
+
+Understand how the platform uses labelled data and flags higher-risk predictions, if a regional dataset is curated.
+
+Future maintainers
+
+Understand the modular layers and constraints when extending the platform (e.g., SHAP, Android APK packaging).
+
+Abbreviations
+
+Terms, acronyms and abbreviations used in this document are defined in the “Definition of Terms, Acronyms, and Abbreviations” table at the front of this document.
+
+Overall System Description 
+
+Project Background
+
+Skin diseases and hair-related disorders such as acne, eczema, psoriasis, melanoma, dandruff, alopecia and hair thinning affect millions of people and can harm both physical health and psychological wellbeing. Early identification and continuous monitoring are important for effective treatment, yet many people, particularly in remote and underserved regions, cannot easily reach a dermatologist because of consultation costs, long waiting times and limited specialist availability.
+
+Advances in Artificial Intelligence, Machine Learning and Computer Vision, especially Convolutional Neural Networks, have shown strong performance on medical image tasks such as skin lesion classification. Dermalytics applies these techniques in a single platform that combines skin lesion analysis and hair/scalp assessment, shows why a prediction was made through Explainable AI (Grad-CAM), and keeps a structured history of assessments. The project is developed with the Agile methodology in nine sprints.
+
+Problem Statement
+
+Existing dermatology applications address either skin lesions or hair loss, rarely explain their predictions, and seldom track change over time. People in underserved regions such as Karachi also struggle to access affordable early screening. Dermalytics provides one explainable, web-based platform that analyzes skin and scalp images and monitors progress.
+
+Gaps addressed by Dermalytics:
+
+Limited access: dermatologists are unavailable or costly in remote and underserved areas.
+
+Fragmented tools: no single platform covers both skin and hair assessment.
+
+Black-box AI: existing systems give predictions without explanations.
+
+No progress tracking: users cannot monitor changes over time in a structured, model-linked way.
+
+Project Scope
+
+Dermalytics is an AI-powered, web-based platform for individual users seeking preliminary dermatological screening and personal health monitoring. The following functionality is in scope:
+
+Image upload for skin and scalp analysis (camera or gallery on mobile, file picker on desktop).
+
+Automated skin lesion classification using deep learning models, with a confidence score.
+
+Hair density estimation and thinning detection, reported as a density score (0–100) and a thinning-stage band.
+
+Grad-CAM explainability overlays for every prediction.
+
+Risk flagging: low-confidence or higher-risk predictions show a “Recommend professional consultation” notice.
+
+User accounts, historical record storage and progress tracking.
+
+A fully responsive web interface for desktop, tablet and mobile phone screens, built as a single React.js codebase.
+
+Platform delivery model: Dermalytics is built and deployed as one responsive web application. Once the web platform is stable, the existing web app may optionally be packaged into an installable Android APK using a WebView-based wrapper; this reuses the same front end and backend APIs and is treated as a future-scope enhancement, not a core sprint.
+
+Not In Scope
+
+The following are explicitly out of scope:
+
+Real-time video analysis.
+
+Integration with electronic health record systems.
+
+Clinical-grade diagnosis, and prescription or treatment recommendations.
+
+Native offline-first mobile application development (a separate native codebase with offline model inference).
+
+Use by children, and emergency or rapidly changing presentations (for example, a bleeding or fast-growing lesion).
+
+Project Objectives
+
+The objective of the project is to develop an AI-powered skin and hair health assessment platform using an Agile approach that enables iterative improvement, continuous testing and user-centred feature enhancement. Specific objectives are:
+
+Classify skin lesions automatically using deep learning models (EfficientNet, ResNet50, MobileNetV3), selecting the best backbone per task by validation accuracy and F1-score.
+
+Assess hair health by estimating hair density and detecting signs of thinning.
+
+Provide explainable predictions with Grad-CAM heatmaps and confidence scores to increase transparency and user trust.
+
+Flag low-confidence or higher-risk predictions and recommend professional consultation.
+
+Store assessment history so users can monitor changes in skin and hair health over time.
+
+Deliver a responsive web-based interface usable on desktop and mobile browsers.
+
+Keep the platform free to deploy in cost-sensitive settings by using an open-source technology stack.
+
+Stakeholders & Affected Groups
+
+Stakeholder / group
+
+Description
+
+Interest or impact
+
+Primary users
+
+Adults roughly 18–55 years old in urban and semi-urban regions (e.g., Karachi) facing cost, distance or waiting-time barriers to a dermatologist.
+
+Fast, low-cost first read on a skin spot or thinning hair, before deciding on an in-person consultation.
+
+Secondary users
+
+Users already aware of, or being treated for, a condition such as androgenetic alopecia or a monitored skin lesion.
+
+Objective, repeatable tracking of whether a routine or treatment is working over months.
+
+Development team
+
+Syed Azan Ahmed, Asma Ghani, Hania Saeed.
+
+Design, build, test and document the platform across nine sprints.
+
+Supervisor
+
+Khalid Charan, Department of Computing, Hamdard University.
+
+Guides and approves the project and its deliverables.
+
+Local dermatologist
+
+Domain expert who may be consulted if public datasets do not represent the local context.
+
+Helps curate and label a consented in-house dataset for the local population.
+
+Dermatology and trichology providers
+
+Clinicians who receive users who were prompted to seek consultation.
+
+Indirectly affected: earlier awareness and referral of users; the platform does not replace them.
+
+Hamdard University evaluators
+
+Examiners of the Final Year Project.
+
+Assess the project against academic requirements.
+
+Operating Environment
+
+Component
+
+Operating environment
+
+Client
+
+Modern web browsers on desktop/laptop, tablet and mobile phone (for example, Chrome on Android); camera or gallery access on mobile, file picker on desktop. Optional Android APK via WebView wrapper later.
+
+Frontend
+
+React.js with HTML5, CSS3, JavaScript and Bootstrap / Tailwind CSS, served over HTTPS.
+
+Backend
+
+Flask / FastAPI REST services in Docker containers; optional cloud hosting (AWS, Render or Railway).
+
+AI / ML engine
+
+Python with TensorFlow, PyTorch, Scikit-learn, OpenCV and Pillow. Model training on GPU (Google Colab or a local GPU); inference served by the backend.
+
+Data
+
+PostgreSQL / MySQL for users, assessments and history (SQLite for prototype); file system or S3-style object storage for uploaded images and Grad-CAM outputs.
+
+Connectivity
+
+A standard internet-connected environment is assumed for deployment and access.
+
+System Constraints
+
+The system is a preliminary screening and self-monitoring aid, not a diagnostic or emergency-triage tool.
+
+It is delivered as a web application; no separate native mobile codebase and no offline model inference.
+
+The technology stack is open-source and free to use to minimise financial cost.
+
+Public datasets (HAM10000, ISIC 2017 and public scalp/hair datasets) may not represent images captured in Pakistan, creating a risk of domain shift.
+
+Model training depends on limited GPU resources (Google Colab or a local GPU).
+
+Uploaded images and history are healthcare-related and must be stored securely with access limited to the authenticated user.
+
+The project is limited to a team of three and to the schedule of nine sprints from September 2026 to February 2027.
+
+Assumptions & Dependencies
+
+Assumptions
+
+Users have internet access and a modern browser on a desktop, laptop or mobile phone.
+
+Users upload reasonably clear images; prediction accuracy varies with image quality, lighting and dataset diversity.
+
+The platform is used as a supplementary screening tool and not as a replacement for professional dermatological consultation.
+
+Assessment reports are used for periodic retraining only with the user’s explicit consent.
+
+Dependencies
+
+Public datasets: HAM10000, ISIC 2017 (supplementary validation) and publicly available scalp and hair datasets, supplemented by a curated, consented in-house dataset.
+
+ImageNet-pretrained EfficientNet, ResNet50 and MobileNetV3 backbones, and the TensorFlow / PyTorch frameworks.
+
+Google Colab or local GPU availability for model training.
+
+Cloud hosting and storage (AWS / Render / Railway, optional) for deployment.
+
+Partnership with a local dermatologist, only if Sprint 2 shows that external datasets do not sufficiently represent the local context.
+
+External Interface Requirements 
+
+Hardware Interfaces
+
+Dermalytics does not require any dedicated or custom hardware. It interacts with the following standard hardware:
+
+User devices (desktop, laptop, tablet, mobile phone): display, input devices, and on mobile the camera and photo gallery, used to capture or select skin and scalp images. Camera access is requested through the browser; there are no fixed physical addresses or device-specific protocols.
+
+Server infrastructure: a standard server or cloud instance running the containerised backend and database.
+
+Training hardware: a GPU (Google Colab or a local GPU) used offline for model training and fine-tuning; it is not part of the runtime system.
+
+Software Interfaces
+
+Application / component
+
+External owner
+
+Interface details
+
+Web browser (Chrome and other modern browsers)
+
+Browser vendors
+
+Runs the React.js single-page application; camera/gallery and file-picker access via standard browser APIs.
+
+Backend API (Flask / FastAPI)
+
+Open source (Pallets / FastAPI projects)
+
+REST endpoints (JSON) for authentication, image upload, inference, history and export; consumed by the React.js frontend.
+
+TensorFlow / PyTorch models
+
+Google / PyTorch Foundation
+
+Called in-process by the Inference Service to run the skin lesion classifier and hair analyser, and to compute Grad-CAM heatmaps.
+
+OpenCV and Pillow
+
+Open source
+
+Image resizing, normalisation, noise reduction and quality checks in the Image Preprocessor.
+
+PostgreSQL / MySQL (SQLite for prototype)
+
+PostgreSQL Global Development Group / Oracle
+
+Relational storage of users, assessments and history through the backend data layer.
+
+Image storage (file system or S3-style object storage)
+
+Deployment host / Amazon (if S3)
+
+Stores uploaded skin and scalp images and Grad-CAM outputs, with access limited to the owning user.
+
+Docker and cloud hosting (AWS / Render / Railway)
+
+Docker Inc. / cloud providers
+
+Containerised deployment of the backend; optional hosting.
+
+GitHub and Postman
+
+Microsoft / Postman Inc.
+
+Version control, Agile sprint management (GitHub Projects / Trello) and API testing.
+
+Android WebView wrapper (optional, future)
+
+Google / Apache Cordova / Ionic Capacitor
+
+Packages the existing web front end as an installable APK that calls the same backend APIs.
+
+Communications Interfaces
+
+Browser to server: all communication uses HTTPS so that data in transit is encrypted.
+
+Frontend to backend: REST API calls exchanging JSON; image uploads are sent as multipart requests from the browser to the Image Upload endpoint.
+
+Backend to AI engine and data layer: internal service calls between the Inference Service, the database and the image store inside the deployment.
+
+No dedicated LAN, wireless or device-to-device protocols are required; a standard internet connection is assumed.
+
+System Functions / Functional Requirements 
+
+System Functions
+
+System functions describe what Dermalytics is supposed to do; each one makes sense in the sentence “The system should do <X>”. They are grouped logically and given a category. Functions trace to the functional requirements FR-1 to FR-8 of the project proposal. Quality characteristics are listed separately as system attributes.
+
+Function Categories
+
+Function Category
+
+Meaning
+
+Evident
+
+Should perform, and user should be cognizant that it is performed.
+
+Hidden
+
+Should perform, but not be visible to users. This is true of many underlying technical services, such as save information in a persistent storage mechanism. Hidden functions are often missed during the requirements gathering process.
+
+Frill
+
+Optional; adding it does not significantly affect cost or other functions.
+
+System Functions
+
+Ref #
+
+Functions
+
+Category
+
+Attribute
+
+Details & Boundary Constraints
+
+R1.1
+
+Register a new user account (FR-7)
+
+Evident
+
+Security
+
+Account data protected; accessible only to its owner.
+
+R1.2
+
+Authenticate users (log in) and restrict all data to the authenticated owner (FR-7)
+
+Evident
+
+Security
+
+Images and history are never visible to other users.
+
+R1.3
+
+Manage profile and uploaded data (FR-7)
+
+Evident
+
+Usability
+
+User can review profile and uploaded data and set consent for model improvement.
+
+R2.1
+
+Upload a skin lesion or scalp/hair image (FR-1)
+
+Evident
+
+Usability
+
+Camera or gallery on mobile; file picker on desktop; preview before submit.
+
+R2.2
+
+Validate and preprocess the image: resize, normalise, quality check
+
+Hidden
+
+Reliability
+
+Malformed or low-quality uploads give a clear error message, never a silent failure.
+
+R3.1
+
+Classify the skin lesion with a calibrated confidence score (FR-2)
+
+Evident
+
+Response time
+
+Result within a few seconds under normal network conditions; trained on seven HAM10000 categories.
+
+R3.2
+
+Estimate hair density (0–100) and thinning-stage band (FR-3)
+
+Evident
+
+Response time
+
+Result within a few seconds; bands loosely aligned to Norwood-Hamilton / Ludwig scales.
+
+R3.3
+
+Generate a Grad-CAM heatmap overlay for each prediction (FR-4)
+
+Evident
+
+Explainability
+
+Shown with every skin and hair result.
+
+R3.4
+
+Flag predictions with “Recommend professional consultation” (FR-5)
+
+Evident
+
+Safety
+
+Applies when confidence is below 80% or the class is higher-risk (e.g., suspected melanoma, basal cell carcinoma).
+
+R3.5
+
+Label every output as a preliminary screening indicator, not a diagnosis
+
+Evident
+
+Safety
+
+Displayed on all results and exports.
+
+R4.1
+
+Store images, assessment results and heatmaps linked to the user account
+
+Hidden
+
+Security
+
+Stored securely in the database and image store; access limited to the owner.
+
+R4.2
+
+View past assessments (FR-6)
+
+Evident
+
+Usability
+
+Listed per user with date, type, result and thumbnail.
+
+R4.3
+
+Compare results over time and show progress charts (FR-6)
+
+Evident
+
+Usability
+
+Model-linked comparison of assessments (e.g., density scores across visits).
+
+R5.1
+
+Present a responsive interface on all screens (FR-8)
+
+Evident
+
+Portability
+
+Upload, results, history and dashboard usable on desktop, tablet and mobile from one React.js codebase.
+
+R5.2
+
+Collect assessment reports for periodic retraining, with explicit user consent
+
+Hidden
+
+Privacy
+
+Only consented reports are used; feeds the retraining cycle in Sprints 8–9.
+
+R5.3
+
+Export a portable, structured summary sheet of an assessment
+
+Frill
+
+Usability
+
+Optional; for sharing with a clinician.
+
+R5.4
+
+Package the web app as an Android APK using a WebView wrapper
+
+Frill
+
+Portability
+
+Optional future scope; reuses the same front end and backend APIs.
+
+R5.5
+
+Provide SHAP-based explanations in addition to Grad-CAM
+
+Frill
+
+Explainability
+
+Optional future enhancement.
+
+System Attributes / Non-Functional Requirements
+
+System attributes are qualities of the system rather than functions. The Category column states whether an attribute is mandatory for operation or optional.
+
+Attribute
+
+Details and Boundary Constraints
+
+Category
+
+Response time
+
+(Boundary constraint) Image upload and inference return a result within a few seconds under normal network conditions; the interface remains responsive while a prediction is processing.
+
+Mandatory
+
+Confidence handling
+
+Predictions below an 80% confidence threshold, or in a higher-risk class, are flagged for professional consultation.
+
+Mandatory
+
+Explainability
+
+Every skin and hair prediction is accompanied by a Grad-CAM overlay.
+
+Mandatory
+
+Security & privacy
+
+Data in transit is encrypted (HTTPS); stored images and history are accessible only to the authenticated user.
+
+Mandatory
+
+Reliability
+
+Malformed or low-quality uploads are handled gracefully with a clear error message.
+
+Mandatory
+
+Usability & responsiveness
+
+Fully responsive layout for desktop, tablet and mobile viewports from a single React.js codebase; no mobile-only build for the initial release.
+
+Mandatory
+
+Scalability
+
+The containerised backend can handle growth in users and stored history without a redesign.
+
+Mandatory
+
+Maintainability
+
+Modular structure with separate model-serving, API and frontend layers so one layer can change without breaking others.
+
+Mandatory
+
+Portability
+
+The web front end can be packaged as an Android APK via a WebView wrapper without rewriting the front end or backend.
+
+Optional
+
+Use Cases
+
+This section identifies the actors, lists the use cases, shows the system-level use case diagram, and describes each use case in detail.
+
+List of Actors
+
+Visitor (Unregistered); a person who has not yet created an account; can only register.
+
+Registered User; a person with an account who uploads skin or scalp images, views explainable results, and reviews and compares their history. Includes both the preliminary screener and the progress tracker (e.g., a user monitoring hair-loss treatment).
+
+AI Inference Service; secondary (system) actor: the backend service that runs the skin lesion classifier, hair analyser and Grad-CAM generation and returns predictions to the platform.
+
+List of Use Cases
+
+ID
+
+Use case
+
+Brief description
+
+Actors
+
+UC-01
+
+Register Account
+
+A visitor creates a personal account.
+
+Visitor
+
+UC-02
+
+Log In
+
+A registered user authenticates to access their data.
+
+Registered User
+
+UC-03
+
+Manage Profile & Data
+
+The user reviews their profile and uploaded data and sets consent for model improvement.
+
+Registered User
+
+UC-04
+
+Upload Image
+
+The user supplies a skin or scalp image that is validated and preprocessed.
+
+Registered User
+
+UC-05
+
+Analyze Skin Lesion
+
+The system classifies the lesion, gives a confidence score and flags risk.
+
+Registered User, AI Inference Service
+
+UC-06
+
+Analyze Hair / Scalp
+
+The system estimates hair density and thinning stage with a heatmap.
+
+Registered User, AI Inference Service
+
+UC-07
+
+View Explainable Result
+
+The user sees the Grad-CAM overlay showing regions that drove a prediction.
+
+Registered User
+
+UC-08
+
+View Assessment History
+
+The user browses past assessments linked to their account.
+
+Registered User
+
+UC-09
+
+Compare Progress
+
+The user compares assessments over time using side-by-side views and charts.
+
+Registered User
+
+UC-10
+
+Export Clinical Summary (optional)
+
+The user exports a portable summary sheet of an assessment.
+
+Registered User
+
+Use Case Diagram
+
+Figure 4.1: System-level use case diagram of Dermalytics
+
+Description of Use Cases
+
+UC-01: Register Account
+
+Use Case
+
+UC-01 – Register Account
+
+Actors
+
+Visitor
+
+Purpose
+
+Create an account so assessments and history can be saved securely.
+
+Description
+
+A visitor provides the required registration details and creates a personal account.
+
+Cross References
+
+Functions: R1.1; FR-7
+
+Pre-Conditions
+
+The visitor has opened the Dermalytics web app and has no account.
+
+Post-Conditions
+
+A new account exists and the user can log in.
+
+Typical Course of Events
+
+Actor Action
+
+System Response
+
+1. Selects “Register”.
+
+2. Displays the registration form.
+
+3. Enters the required details and submits.
+
+4. Validates the input and creates the account.
+
+5. Confirms registration and directs the user to log in.
+
+Alternative Courses
+
+Step 4: Input is invalid or the account already exists. The system shows a clear error message and asks the visitor to correct the input.
+
+UC-02: Log In
+
+Use Case
+
+UC-02 – Log In
+
+Actors
+
+Registered User
+
+Purpose
+
+Authenticate the user so they can access only their own data.
+
+Description
+
+The user enters credentials and the system authenticates them and opens their dashboard.
+
+Cross References
+
+Functions: R1.2; FR-7
+
+Pre-Conditions
+
+The user has a registered account.
+
+Post-Conditions
+
+The user is authenticated and sees the dashboard with upload and history options.
+
+Typical Course of Events
+
+Actor Action
+
+System Response
+
+1. Selects “Log in” and enters credentials.
+
+2. Verifies the credentials.
+
+3. Opens the dashboard.
+
+Alternative Courses
+
+Step 2: Credentials are invalid. The system shows an error and keeps the user on the login page.
+
+UC-03: Manage Profile & Data
+
+Use Case
+
+UC-03 – Manage Profile & Data
+
+Actors
+
+Registered User
+
+Purpose
+
+Let the user control their profile, uploaded data and consent preference.
+
+Description
+
+The user reviews or updates profile details, reviews or removes uploaded data, and chooses whether consented reports may be used for model improvement.
+
+Cross References
+
+Functions: R1.3, R5.2; FR-7
+
+Pre-Conditions
+
+The user is logged in.
+
+Post-Conditions
+
+Profile, data and consent preference are saved as the user specified.
+
+Typical Course of Events
+
+Actor Action
+
+System Response
+
+1. Opens the profile page.
+
+2. Displays profile details, uploaded data and the consent setting.
+
+3. Updates details, manages uploaded data or changes the consent setting.
+
+4. Validates and saves the changes.
+
+5. Confirms the update.
+
+Alternative Courses
+
+Step 4: Input is invalid. The system shows an error and does not save the change.
+
+UC-04: Upload Image
+
+Use Case
+
+UC-04 – Upload Image
+
+Actors
+
+Registered User
+
+Purpose
+
+Submit a skin lesion or scalp image for analysis.
+
+Description
+
+The user chooses the analysis type and supplies an image by camera or gallery (mobile) or file picker (desktop). The system validates and preprocesses it.
+
+Cross References
+
+Functions: R2.1, R2.2; FR-1
+
+Pre-Conditions
+
+The user is logged in.
+
+Post-Conditions
+
+A validated, preprocessed image is available to the analysis step.
+
+Typical Course of Events
+
+Actor Action
+
+System Response
+
+1. Chooses “Skin lesion” or “Scalp/hair” analysis.
+
+2. Displays the upload control.
+
+3. Captures a photo or selects an image file.
+
+4. Shows a preview of the image.
+
+5. Confirms the upload.
+
+6. Validates the image and preprocesses it (resize, normalise, quality check).
+
+7. Passes the image to the analysis.
+
+Alternative Courses
+
+Step 6: The image is malformed or of low quality. The system shows a clear error message and asks the user to upload another image.
+
+UC-05: Analyze Skin Lesion
+
+Use Case
+
+UC-05 – Analyze Skin Lesion
+
+Actors
+
+Registered User, AI Inference Service
+
+Purpose
+
+Classify a skin lesion and provide an explainable, risk-aware result.
+
+Description
+
+The skin classifier predicts a class with a calibrated confidence score. A Grad-CAM heatmap is generated and risk rules are applied before the result is stored and shown.
+
+Cross References
+
+Includes UC-04; Functions: R3.1, R3.3, R3.4, R3.5, R4.1; FR-2, FR-4, FR-5
+
+Pre-Conditions
+
+The user is logged in and has selected skin lesion analysis.
+
+Post-Conditions
+
+An assessment report is stored in the user’s history and displayed.
+
+Typical Course of Events
+
+Actor Action
+
+System Response
+
+1. Uploads a skin image (UC-04).
+
+2. Sends the preprocessed image to the skin lesion classifier.
+
+3. Classifier predicts a class and a calibrated confidence score.
+
+4. Generates the Grad-CAM heatmap.
+
+5. Applies the risk rules and builds the assessment report.
+
+6. Stores the report linked to the user’s history.
+
+7. Displays class, confidence, heatmap and the preliminary-screening notice.
+
+Alternative Courses
+
+Step 5: Confidence is below 80% or the class is higher-risk (e.g., suspected melanoma or basal cell carcinoma). The report shows “Recommend professional consultation” instead of a standalone result.
+
+Step 2: The inference service is unavailable or fails. The system shows an error and lets the user retry.
+
+UC-06: Analyze Hair / Scalp
+
+Use Case
+
+UC-06 – Analyze Hair / Scalp
+
+Actors
+
+Registered User, AI Inference Service
+
+Purpose
+
+Estimate hair density and thinning stage with an explainable result.
+
+Description
+
+The hair analyser estimates a density score (0–100) and a thinning-stage band from the scalp image, with a Grad-CAM overlay showing which scalp regions drove the score.
+
+Cross References
+
+Includes UC-04; Functions: R3.2, R3.3, R3.5, R4.1; FR-3, FR-4
+
+Pre-Conditions
+
+The user is logged in and has selected scalp/hair analysis.
+
+Post-Conditions
+
+An assessment report is stored in the user’s history and displayed.
+
+Typical Course of Events
+
+Actor Action
+
+System Response
+
+1. Uploads a scalp image (UC-04).
+
+2. Sends the preprocessed image to the hair analyser.
+
+3. Estimates the density score and thinning-stage band.
+
+4. Generates the Grad-CAM heatmap.
+
+5. Builds the assessment report and stores it in the user’s history.
+
+6. Displays density score, stage band, heatmap and the preliminary-screening notice.
+
+Alternative Courses
+
+Step 2: The inference service is unavailable or fails. The system shows an error and lets the user retry.
+
+UC-07: View Explainable Result
+
+Use Case
+
+UC-07 – View Explainable Result
+
+Actors
+
+Registered User
+
+Purpose
+
+Let the user see which image regions influenced a prediction.
+
+Description
+
+The user opens a result and views the Grad-CAM overlay together with the confidence score.
+
+Cross References
+
+Functions: R3.3; FR-4
+
+Pre-Conditions
+
+An analysis has been completed (UC-05 or UC-06).
+
+Post-Conditions
+
+The user has viewed the explanation for the prediction.
+
+Typical Course of Events
+
+Actor Action
+
+System Response
+
+1. Opens an assessment result.
+
+2. Displays the image with the Grad-CAM overlay and confidence score.
+
+3. Toggles the overlay on or off.
+
+4. Shows or hides the heatmap.
+
+Alternative Courses
+
+Step 2: The heatmap cannot be displayed. The system shows the prediction with a notice that the explanation is unavailable.
+
+UC-08: View Assessment History
+
+Use Case
+
+UC-08 – View Assessment History
+
+Actors
+
+Registered User
+
+Purpose
+
+Review past assessments linked to the user’s account.
+
+Description
+
+The user browses their stored assessments and opens any one to see its full report.
+
+Cross References
+
+Functions: R4.1, R4.2; FR-6
+
+Pre-Conditions
+
+The user is logged in.
+
+Post-Conditions
+
+The user has viewed their assessment history.
+
+Typical Course of Events
+
+Actor Action
+
+System Response
+
+1. Selects “History”.
+
+2. Retrieves the user’s assessments and lists them by date with type, result and thumbnail.
+
+3. Selects an assessment.
+
+4. Displays the full report (class or score, confidence, heatmap).
+
+Alternative Courses
+
+Step 2: No assessments exist. The system shows a message inviting the user to run a first analysis.
+
+UC-09: Compare Progress
+
+Use Case
+
+UC-09 – Compare Progress
+
+Actors
+
+Registered User
+
+Purpose
+
+Monitor changes in skin or hair health over time.
+
+Description
+
+The user compares assessments of the same type across dates using side-by-side views and progress charts.
+
+Cross References
+
+Functions: R4.3; FR-6
+
+Pre-Conditions
+
+The user is logged in and has at least two assessments of the same type.
+
+Post-Conditions
+
+The user has viewed a comparison of assessments over time.
+
+Typical Course of Events
+
+Actor Action
+
+System Response
+
+1. Opens the progress view and selects the assessment type and period.
+
+2. Retrieves the matching assessments.
+
+3. Displays thumbnails, scores and progress charts across visits.
+
+Alternative Courses
+
+Step 2: Fewer than two assessments of that type exist. The system informs the user that at least two are needed to compare.
+
+UC-10: Export Clinical Summary (optional)
+
+Use Case
+
+UC-10 – Export Clinical Summary (optional)
+
+Actors
+
+Registered User
+
+Purpose
+
+Produce a portable summary of an assessment to share with a clinician.
+
+Description
+
+The user exports a structured summary sheet containing the result, confidence, heatmap and screening notice.
+
+Cross References
+
+Functions: R5.3
+
+Pre-Conditions
+
+The user is logged in and has at least one assessment.
+
+Post-Conditions
+
+A summary file is downloaded by the user.
+
+Typical Course of Events
+
+Actor Action
+
+System Response
+
+1. Selects an assessment and chooses “Export”.
+
+2. Builds the structured summary sheet.
+
+3. Provides the file for download.
+
+Alternative Courses
+
+Step 2: The summary cannot be generated. The system shows an error and lets the user retry.
+
+Non - Functional Requirements 
+
+Performance Requirements
+
+ID
+
+Requirement
+
+NFR-P1
+
+Image upload and inference shall return a result within a few seconds under normal network conditions.
+
+NFR-P2
+
+The interface shall remain responsive while a prediction is processing (for example, by showing progress feedback).
+
+NFR-P3
+
+The containerised backend shall support growth in registered users and stored assessment history without redesign.
+
+Safety Requirements
+
+ID
+
+Requirement
+
+NFR-SA1
+
+Every skin and hair output shall be explicitly labelled as a preliminary screening indicator and not a diagnosis.
+
+NFR-SA2
+
+Predictions below an 80% confidence threshold, or in a higher-risk category such as suspected melanoma or basal cell carcinoma, shall display “Recommend professional consultation” rather than a standalone result.
+
+NFR-SA3
+
+The system shall not provide prescription or treatment recommendations, and shall state that it is not intended for children or for emergency or rapidly changing presentations.
+
+Security Requirements
+
+ID
+
+Requirement
+
+NFR-SE1
+
+Data in transit shall be encrypted using HTTPS.
+
+NFR-SE2
+
+Uploaded images, Grad-CAM outputs and assessment history are healthcare-related and shall be stored securely, with access limited to the authenticated user.
+
+NFR-SE3
+
+The API layer shall authenticate and validate requests before routing them.
+
+NFR-SE4
+
+Assessment reports shall be used for model retraining only with the user’s explicit consent.
+
+Reliability Requirements
+
+ID
+
+Requirement
+
+NFR-R1
+
+The system shall handle malformed or low-quality image uploads gracefully with a clear error message rather than failing silently.
+
+NFR-R2
+
+Assessment records shall be persisted so they remain available in the user’s history for later comparison.
+
+NFR-R3
+
+Confidence scores shall be calibrated so that the 80% flagging threshold is meaningful.
+
+Usability Requirements
+
+ID
+
+Requirement
+
+NFR-U1
+
+The web interface shall be fully responsive, adapting layout and controls to desktop, tablet and mobile phone viewports from a single React.js codebase.
+
+NFR-U2
+
+Users on mobile shall be able to upload from the camera or gallery; users on desktop from a file picker.
+
+NFR-U3
+
+Results shall be explained in plain language, with the Grad-CAM overlay showing which regions drove the prediction.
+
+Supportability Requirements
+
+ID
+
+Requirement
+
+NFR-SU1
+
+The codebase shall be modular, with separate model-serving, API and frontend layers so a sprint can update one layer without breaking the others.
+
+NFR-SU2
+
+The platform shall be deployable with Docker and shall use only open-source, free-to-use frameworks.
+
+NFR-SU3
+
+The system shall be verifiable through unit and integration tests (PyTest) and API tests (Postman).
+
+NFR-SU4
+
+The responsive web front end shall be packageable as an Android APK via a WebView wrapper without rewriting the front end or backend.
+
+User Documentation
+
+ID
+
+Requirement
+
+NFR-D1
+
+Technical documentation and a final report shall be prepared in Sprint 9, together with a final presentation and demonstration.
+
+NFR-D2
+
+A short user guide describing how to take suitable photos, upload them and read the results, including the screening disclaimer, shall be provided.
+
+References 
+
+[1] LeCun, Y., Bengio, Y., & Hinton, G. “Deep learning.” Nature, 521(7553), 436–444, 2015.
+
+[2] Tschandl, P., Rosendahl, C., & Kittler, H. “The HAM10000 dataset, a large collection of multi-source dermatoscopic images of common pigmented skin lesions.” Scientific Data, 5, 180161, 2018.
+
+[3] Codella, N. C. F., et al. “Skin Lesion Analysis Toward Melanoma Detection: ISIC 2017 Challenge.” arXiv:1710.05006, 2017.
+
+[4] Selvaraju, R. R., et al. “Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization.” Proceedings of ICCV, 2017.
+
+[5] Szegedy, C., et al. “Going deeper with convolutions.” Proceedings of CVPR, 2015.
+
+[6] Tan, M., & Le, Q. V. “EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks.” Proceedings of ICML, 2019.
+
+[7] He, K., Zhang, X., Ren, S., & Sun, J. “Deep Residual Learning for Image Recognition.” Proceedings of CVPR, 2016.
+
+[8] Howard, A., et al. “Searching for MobileNetV3.” Proceedings of ICCV, 2019.
+
+[9] Esteva, A., et al. “Dermatologist-level classification of skin cancer with deep neural networks.” Nature, 542(7639), 115–118, 2017.
+
+[10] Beck, K., et al. “Manifesto for Agile Software Development.” agilemanifesto.org, 2001.
+
+[11] Han, S. S., et al. “Classification of the Clinical Images for Benign and Malignant Cutaneous Tumors Using a Deep Learning Algorithm.” Journal of Investigative Dermatology, 138(7), 1529–1538, 2018.
+
+[12] Dermalytics: AI-Driven Skin and Hair Health Assessment Platform – Project Proposal. Department of Computer Science, Hamdard University, Karachi.
