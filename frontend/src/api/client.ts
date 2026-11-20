@@ -14,6 +14,16 @@ export const apiClient = axios.create({
   }
 });
 
+// Helper to resolve static asset / upload URLs from Railway backend
+export const getBackendAssetUrl = (path: string): string => {
+  if (!path) return '';
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const baseUrl = import.meta.env.VITE_API_URL
+    ? import.meta.env.VITE_API_URL.replace(/\/api\/v1\/?$/, '')
+    : (isLocal ? 'http://127.0.0.1:8000' : '');
+  return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+};
+
 // Request interceptor to attach JWT token
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('dermalytics_token');
@@ -30,7 +40,6 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Optional auto-logout on unauthorized
       if (!window.location.pathname.includes('/auth')) {
         localStorage.removeItem('dermalytics_token');
         localStorage.removeItem('dermalytics_user');
