@@ -1,6 +1,7 @@
 import sys
 import os
 import shutil
+import traceback
 
 # Add backend directory to Python sys.path so app.* imports work
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +17,35 @@ if os.environ.get("VERCEL"):
     if os.path.exists(source_db) and not os.path.exists(target_db):
         try:
             shutil.copy2(source_db, target_db)
-        except Exception:
-            pass
+        except Exception as e:
+            print("DB copy error:", e)
 
-from app.main import app
+try:
+    from app.main import app
+except Exception as e:
+    err_tb = traceback.format_exc()
+    print("FATAL ERROR IMPORTING APP IN VERCEL SERVERLESS FUNCTION:\n", err_tb)
+    
+    from fastapi import FastAPI
+    from fastapi.responses import JSONResponse
+    
+    app = FastAPI(title="Dermalytics Diagnostic Fallback")
+    
+    @app.api_route("/{path_name:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"])
+    async def vercel_diagnostic(path_name: str):
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": "FastAPI initialization failed on Vercel cold-start",
+                "error": str(e),
+                "traceback": err_tb,
+                "environment": {
+                    "current_dir": current_dir,
+                    "backend_dir": backend_dir,
+                    "backend_exists": os.path.exists(backend_dir),
+                    "backend_contents": os.listdir(backend_dir) if os.path.exists(backend_dir) else [],
+                    "sys_path": sys.path
+                }
+            }
+        )
