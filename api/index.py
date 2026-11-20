@@ -2,6 +2,7 @@ import sys
 import os
 import shutil
 import traceback
+from fastapi import FastAPI
 
 # Add backend directory to Python sys.path so app.* imports work
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -20,32 +21,22 @@ if os.environ.get("VERCEL"):
         except Exception as e:
             print("DB copy error:", e)
 
+# Top-level app reference required by Vercel's static analysis
+app = FastAPI(title="Dermalytics")
+
 try:
-    from app.main import app
-except Exception as e:
+    from app.main import app  # noqa: F811 — overrides the placeholder above
+except Exception:
     err_tb = traceback.format_exc()
-    print("FATAL ERROR IMPORTING APP IN VERCEL SERVERLESS FUNCTION:\n", err_tb)
-    
-    from fastapi import FastAPI
+    print("FATAL ERROR IMPORTING APP:\n", err_tb)
     from fastapi.responses import JSONResponse
-    
-    app = FastAPI(title="Dermalytics Diagnostic Fallback")
-    
+
     @app.api_route("/{path_name:path}", methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"])
-    async def vercel_diagnostic(path_name: str):
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "error",
-                "message": "FastAPI initialization failed on Vercel cold-start",
-                "error": str(e),
-                "traceback": err_tb,
-                "environment": {
-                    "current_dir": current_dir,
-                    "backend_dir": backend_dir,
-                    "backend_exists": os.path.exists(backend_dir),
-                    "backend_contents": os.listdir(backend_dir) if os.path.exists(backend_dir) else [],
-                    "sys_path": sys.path
-                }
-            }
-        )
+    async def startup_error(path_name: str):
+        return JSONResponse(status_code=500, content={
+            "error": "Dermalytics backend failed to initialize on Vercel",
+            "traceback": err_tb,
+            "backend_dir": backend_dir,
+            "backend_exists": os.path.exists(backend_dir),
+            "backend_contents": os.listdir(backend_dir) if os.path.exists(backend_dir) else [],
+        })
