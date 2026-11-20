@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/index.py": {
-      "includeFiles": "backend/app/**"
+      "includeFiles": "backend/**"
     }
   },
   "outputDirectory": "frontend/dist",
