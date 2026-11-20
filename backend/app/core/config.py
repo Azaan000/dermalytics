@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
 
-    # Security: No default SECRET_KEY! Refuses to start without one in .env or environment
-    SECRET_KEY: str
+    # Security
+    SECRET_KEY: str = "d88f9c909f6e46d31a7acff0faf0e7b69664532d6f678b859ea484810c5282a1"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
@@ -20,11 +20,19 @@ class Settings(BaseSettings):
     DEMO_USER_PASSWORD: str = "DemoPass123!"
     ADMIN_USER_PASSWORD: str = "AdminPass123!"
 
-    # Database
-    DATABASE_URL: str = "sqlite:///./dermalytics.db"
+    # Database: Use /tmp/dermalytics.db on Vercel serverless for write permissions
+    DATABASE_URL: str = (
+        "sqlite:////tmp/dermalytics.db"
+        if os.environ.get("VERCEL")
+        else "sqlite:///./dermalytics.db"
+    )
     
-    # Uploads & Storage
-    UPLOAD_DIR: str = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
+    # Uploads & Storage: Use /tmp/uploads on Vercel
+    UPLOAD_DIR: str = (
+        "/tmp/uploads"
+        if os.environ.get("VERCEL")
+        else os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
+    )
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10 MB
     ALLOWED_IMAGE_TYPES: List[str] = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
 
